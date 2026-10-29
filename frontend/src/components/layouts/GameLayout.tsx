@@ -22,9 +22,9 @@ export const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
   const timerColor = globalTimer <= 10 ? 'text-red-400 font-bold animate-pulse' : 'text-slate-100';
 
   return (
-    <div className="w-screen h-screen flex flex-col relative overflow-hidden bg-slate-950">
+    <div className="w-screen h-[100dvh] flex flex-col relative overflow-hidden bg-slate-950">
       {/* Barra superior / HUD Flotante Integrada */}
-      <header className="absolute top-0 left-0 right-0 z-50 h-14 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-6 flex items-center justify-between text-white shadow-lg">
+      <header className="absolute top-0 left-0 right-0 z-50 h-14 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-3 sm:px-6 flex items-center justify-between text-white shadow-lg">
         <div className="flex items-center space-x-2">
           <span className="text-xl">🚑</span>
           <span className="font-bold tracking-tight text-white hidden sm:inline">
