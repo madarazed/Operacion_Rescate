@@ -1,111 +1,135 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useGameStore } from '../../store/gameStore';
-import heroDog from '../../assets/characters/level3-examine-dog.png';
 
 export const StartScreen: React.FC = () => {
   const startGame = useGameStore((state) => state.actions.startGame);
 
   const handleStart = () => {
     try {
-      navigator?.vibrate?.(50);
+      navigator?.vibrate?.(60);
     } catch {
-      // Ignore vibration error
+      // Ignore vibration error on unsupported platforms
     }
     startGame();
   };
 
   return (
-    <div className="w-full h-[100dvh] relative overflow-hidden bg-slate-950 flex flex-col justify-between items-center px-4 py-8 select-none">
-      {/* Luces y ambientación cinematográfica */}
-      <div className="absolute inset-0 bg-radial-gradient from-blue-900/20 via-slate-950 to-slate-950 pointer-events-none" />
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="w-full h-[100dvh] relative overflow-hidden bg-slate-950 flex flex-col justify-between select-none">
+      {/* 1. Fondo e Ilustración Oficial de Portada (/images/cover-rescate.png) */}
+      <div
+        className="absolute inset-0 w-full h-full bg-cover bg-center sm:bg-contain sm:bg-center bg-no-repeat pointer-events-none transition-all duration-300"
+        style={{ backgroundImage: "url('/images/cover-rescate.png')" }}
+      />
 
-      {/* Header / Badges Superiores */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative z-10 text-center space-y-2 mt-4 sm:mt-6"
-      >
-        <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-amber-500/20 via-amber-400/20 to-amber-500/20 border border-amber-400/40 px-3.5 py-1 rounded-full shadow-lg backdrop-blur-md">
-          <span className="text-base">🐾</span>
-          <span className="text-xs sm:text-sm font-extrabold text-amber-300 tracking-wider uppercase">
-            Juego Familiar & Educativo
-          </span>
-        </div>
+      {/* Overlay superior sutil para dar máxima legibilidad al título de videojuego */}
+      <div className="absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-slate-950/85 via-slate-950/40 to-transparent pointer-events-none z-10" />
 
-        <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-slate-100 to-slate-400 tracking-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)]">
-          MISIÓN RESCATE
-        </h1>
-        <p className="text-emerald-400 font-bold text-sm sm:text-base tracking-widest uppercase">
-          Código PASR • Primeros Auxilios Veterinarios
-        </p>
-      </motion.div>
+      {/* Overlay suave en la base para no tapar los controles y destacar el botón y cards */}
+      <div className="absolute inset-x-0 bottom-0 h-72 sm:h-96 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent pointer-events-none z-10" />
 
-      {/* Hero Visual: Mascota en Recuperación */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.85 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6, delay: 0.15 }}
-        className="relative z-10 my-auto flex flex-col items-center"
-      >
-        <div className="relative">
-          <div className="absolute inset-0 bg-emerald-400/20 rounded-full blur-2xl animate-pulse pointer-events-none" />
-          <img
-            src={heroDog}
-            alt="Paciente canino rescatado"
-            className="w-40 h-40 sm:w-52 sm:h-52 object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.8)] animate-pulse"
-          />
-        </div>
-      </motion.div>
-
-      {/* Guía Rápida de 3 Pasos */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-        className="relative z-10 w-full max-w-xl space-y-4 mb-2"
-      >
-        <div className="grid grid-cols-3 gap-2 sm:gap-3">
-          <div className="bg-slate-900/80 border border-slate-700/60 rounded-xl p-2.5 text-center shadow-lg backdrop-blur-sm">
-            <span className="text-xl sm:text-2xl block mb-1">🛡️</span>
-            <div className="text-[11px] sm:text-xs font-bold text-white">1. Protege</div>
-            <p className="text-[9px] sm:text-[10px] text-slate-300 hidden xs:block mt-0.5">
-              Asegura el entorno vial
-            </p>
-          </div>
-
-          <div className="bg-slate-900/80 border border-slate-700/60 rounded-xl p-2.5 text-center shadow-lg backdrop-blur-sm">
-            <span className="text-xl sm:text-2xl block mb-1">📋</span>
-            <div className="text-[11px] sm:text-xs font-bold text-white">2. Triage</div>
-            <p className="text-[9px] sm:text-[10px] text-slate-300 hidden xs:block mt-0.5">
-              Código START (Rojo/Amarillo/Verde)
-            </p>
-          </div>
-
-          <div className="bg-slate-900/80 border border-slate-700/60 rounded-xl p-2.5 text-center shadow-lg backdrop-blur-sm">
-            <span className="text-xl sm:text-2xl block mb-1">🎓</span>
-            <div className="text-[11px] sm:text-xs font-bold text-white">3. Certifícate</div>
-            <p className="text-[9px] sm:text-[10px] text-slate-300 hidden xs:block mt-0.5">
-              Hemostasia y diploma oficial
-            </p>
-          </div>
-        </div>
-
-        {/* Botón Principal: ¡Comenzar Rescate! */}
-        <button
-          type="button"
-          onClick={handleStart}
-          className="w-full py-4 sm:py-5 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-500 active:scale-95 text-white font-black text-base sm:text-xl tracking-wide shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 border-2 border-emerald-300/80 transition-all cursor-pointer flex items-center justify-center space-x-2"
+      {/* 2. Zona Superior / Título en Estilo Caricatura / Videojuego 3D */}
+      <header className="relative z-20 text-center pt-5 sm:pt-7 px-4 max-w-3xl mx-auto space-y-1.5 sm:space-y-2">
+        <motion.div
+          initial={{ opacity: 0, y: -25, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
         >
-          <span>🚨</span>
-          <span>¡Comenzar Rescate!</span>
-          <svg className="w-6 h-6 ml-1 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-          </svg>
-        </button>
-      </motion.div>
+          <h1
+            className="text-2xl xs:text-3xl sm:text-5xl md:text-6xl font-black tracking-tight uppercase text-transparent bg-clip-text bg-gradient-to-b from-yellow-300 via-amber-400 to-orange-500 leading-tight"
+            style={{
+              textShadow:
+                '0 3px 0 #9a3412, 0 6px 0 #7c2d12, 0 8px 16px rgba(0,0,0,0.9), 0 0 20px rgba(245,158,11,0.5)',
+              WebkitTextStroke: '1px #7c2d12',
+            }}
+          >
+            MISIÓN RESCATE: CÓDIGO PASR
+          </h1>
+
+          <p className="mt-1 sm:mt-1.5 text-xs sm:text-sm md:text-base font-extrabold tracking-widest text-emerald-300 uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] bg-slate-950/70 backdrop-blur-md px-4 py-1 rounded-full border border-emerald-400/30 inline-block shadow-lg">
+            Aprende a salvar vidas animales en la calle
+          </p>
+        </motion.div>
+      </header>
+
+      {/* 3. Espacio Central Abierto para visualizar a la rescatista y al perrito sin obstrucciones */}
+      <div className="flex-1 min-h-0 pointer-events-none" />
+
+      {/* 4. Zona Inferior de Controles (Botón Principal + Tarjetas Cómic en la Base) */}
+      <footer className="relative z-20 w-full max-w-xl mx-auto px-4 pb-4 sm:pb-6 space-y-3 sm:space-y-4">
+        {/* Botón Principal: COMENZAR MISIÓN con huellita 🐾 y flecha ▶ */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+        >
+          <button
+            type="button"
+            onClick={handleStart}
+            className="w-full group min-h-[56px] sm:min-h-[64px] py-3.5 sm:py-4 px-6 rounded-2xl bg-gradient-to-b from-teal-300 via-emerald-500 to-teal-700 hover:from-teal-200 hover:via-emerald-400 hover:to-teal-600 text-white font-black text-lg sm:text-2xl tracking-wide uppercase shadow-2xl shadow-emerald-500/40 hover:shadow-emerald-500/60 border-t-2 border-teal-200 border-b-4 border-emerald-900 transition-all duration-200 transform hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-between"
+          >
+            <span className="text-2xl sm:text-3xl filter drop-shadow group-hover:rotate-12 transition-transform">
+              🐾
+            </span>
+            <span
+              className="tracking-wider drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
+              style={{ textShadow: '0 2px 4px rgba(0,0,0,0.7)' }}
+            >
+              COMENZAR MISIÓN
+            </span>
+            <span className="text-xl sm:text-2xl filter drop-shadow group-hover:translate-x-1 transition-transform">
+              ▶
+            </span>
+          </button>
+        </motion.div>
+
+        {/* Tarjetas de los 3 pasos en la base (estilo cards de cómic) */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="grid grid-cols-3 gap-2 sm:gap-3"
+        >
+          {/* Tarjeta 1: P: PROTEGER */}
+          <div className="bg-gradient-to-b from-amber-500/25 to-slate-900/95 border-2 border-amber-400 rounded-2xl p-2 sm:p-2.5 text-center shadow-lg shadow-amber-500/10 backdrop-blur-md flex flex-col justify-between transform hover:-translate-y-0.5 transition-transform">
+            <div className="text-xl sm:text-2xl mb-0.5">🧤 ⚠️</div>
+            <div>
+              <div className="text-[11px] sm:text-xs font-black text-amber-300 tracking-tight leading-tight">
+                P: PROTEGER
+              </div>
+              <p className="text-[9px] sm:text-[10px] text-slate-200 leading-tight mt-0.5 font-medium">
+                Guantes y cinta de precaución
+              </p>
+            </div>
+          </div>
+
+          {/* Tarjeta 2: A: ALERTAR */}
+          <div className="bg-gradient-to-b from-blue-500/25 to-slate-900/95 border-2 border-cyan-400 rounded-2xl p-2 sm:p-2.5 text-center shadow-lg shadow-cyan-500/10 backdrop-blur-md flex flex-col justify-between transform hover:-translate-y-0.5 transition-transform">
+            <div className="text-xl sm:text-2xl mb-0.5">📱 🚨</div>
+            <div>
+              <div className="text-[11px] sm:text-xs font-black text-cyan-300 tracking-tight leading-tight">
+                A: ALERTAR
+              </div>
+              <p className="text-[9px] sm:text-[10px] text-slate-200 leading-tight mt-0.5 font-medium">
+                Teléfono móvil llamando al 911
+              </p>
+            </div>
+          </div>
+
+          {/* Tarjeta 3: S Y R: SOCORRER Y REMITIR */}
+          <div className="bg-gradient-to-b from-emerald-500/25 to-slate-900/95 border-2 border-emerald-400 rounded-2xl p-2 sm:p-2.5 text-center shadow-lg shadow-emerald-500/10 backdrop-blur-md flex flex-col justify-between transform hover:-translate-y-0.5 transition-transform">
+            <div className="text-xl sm:text-2xl mb-0.5">🚑 🏥</div>
+            <div>
+              <div className="text-[11px] sm:text-xs font-black text-emerald-300 tracking-tight leading-tight truncate">
+                S Y R: SOCORRER
+              </div>
+              <p className="text-[9px] sm:text-[10px] text-slate-200 leading-tight mt-0.5 font-medium">
+                Ambulancia y triage veterinario
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      </footer>
     </div>
   );
 };
