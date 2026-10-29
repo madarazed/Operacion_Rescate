@@ -156,87 +156,98 @@ export const VictoryScreen: React.FC = () => {
   });
 
   return (
-    <div className="w-full h-full pt-16 pb-8 px-3.5 sm:px-6 overflow-y-auto flex items-center justify-center select-none">
-      <div className="w-full max-w-2xl bg-slate-900/95 backdrop-blur-xl rounded-3xl p-5 sm:p-8 border border-slate-700/80 shadow-2xl text-white space-y-6 my-auto">
-        {/* Cabecera Festiva */}
-        <div className="text-center space-y-2">
-          <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-3xl border border-emerald-500/40 shadow-inner animate-bounce">
-            🎓
+    <div className="w-full min-h-[100dvh] lg:h-[100dvh] lg:overflow-hidden flex flex-col justify-center items-center p-3 sm:p-6 bg-slate-950 select-none overflow-y-auto lg:overflow-y-hidden">
+      <div className="w-full max-w-5xl mx-auto my-auto grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 items-center">
+        {/* COLUMNA IZQUIERDA: Graduación, Certificado Dorado y Acciones */}
+        <div className="flex flex-col justify-center space-y-3 sm:space-y-4">
+          {/* Cabecera breve de graduación con confeti */}
+          <div className="text-center lg:text-left space-y-1">
+            <div className="inline-flex items-center space-x-2 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold px-3 py-0.5 rounded-full uppercase tracking-wider">
+              <span>🎓</span>
+              <span>Misión Cumplida con Honores</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              ¡Graduación de Rescatista!
+            </h2>
+            <p className="text-slate-300 text-xs sm:text-sm leading-snug">
+              Completaste con éxito el protocolo <strong>PASR</strong> (Proteger, Alertar, Socorrer y Remitir).
+            </p>
           </div>
-          <span className="inline-block bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-            Misión Cumplida con Honores
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-            ¡Graduación de Rescatista!
-          </h2>
-          <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-md mx-auto">
-            Completaste con éxito las fases de <strong>Proteger, Alertar, Socorrer y Remitir (PASR)</strong>.
-          </p>
-        </div>
 
-        {/* TARJETA DEL CERTIFICADO CON BORDES DECORATIVOS DORADOS */}
-        <div className="relative rounded-3xl p-1 bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500 shadow-[0_0_40px_rgba(245,158,11,0.25)]">
-          <div className="bg-slate-950/95 rounded-[22px] p-5 sm:p-7 border border-amber-400/40 text-center space-y-4 relative overflow-hidden">
-            {/* Esquinas ornamentales */}
-            <div className="absolute top-2 left-2 text-amber-400 text-xs font-serif">❖</div>
-            <div className="absolute top-2 right-2 text-amber-400 text-xs font-serif">❖</div>
-            <div className="absolute bottom-2 left-2 text-amber-400 text-xs font-serif">❖</div>
-            <div className="absolute bottom-2 right-2 text-amber-400 text-xs font-serif">❖</div>
+          {/* TARJETA DEL CERTIFICADO CON BORDES DECORATIVOS DORADOS */}
+          <div className="relative rounded-2xl p-1 bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500 shadow-[0_0_35px_rgba(245,158,11,0.2)]">
+            <div className="bg-slate-950/95 rounded-[14px] p-4 sm:p-5 border border-amber-400/40 text-center space-y-2.5 relative overflow-hidden">
+              {/* Esquinas ornamentales */}
+              <div className="absolute top-2 left-2 text-amber-400 text-xs font-serif">❖</div>
+              <div className="absolute top-2 right-2 text-amber-400 text-xs font-serif">❖</div>
+              <div className="absolute bottom-2 left-2 text-amber-400 text-xs font-serif">❖</div>
+              <div className="absolute bottom-2 right-2 text-amber-400 text-xs font-serif">❖</div>
 
-            <div className="space-y-1">
-              <span className="text-[10px] sm:text-xs font-mono font-bold text-amber-300 tracking-widest uppercase block">
-                DISTINCIÓN DE PRIMER RESPONDIENTE VETERINARIO
-              </span>
-              <h3 className="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-100 to-amber-400">
-                Rescatista Canino Oficial
-              </h3>
-              <p className="text-[11px] sm:text-xs text-slate-300 italic">
-                Acreditado por temple y pericia en primeros auxilios caninos en situaciones de emergencia.
-              </p>
-            </div>
-
-            {/* Recuadro del nombre del rescatista */}
-            <div className="py-2.5 px-4 bg-slate-900/90 rounded-xl border border-amber-500/30 max-w-md mx-auto">
-              <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">
-                Otorgado con honor a:
-              </span>
-              <span className="text-lg sm:text-xl font-extrabold text-white tracking-wide block truncate">
-                {playerName.trim() || 'Rescatista Canino'}
-              </span>
-            </div>
-
-            {/* Métricas destacadas del certificado */}
-            <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto">
-              <div className="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 text-center">
-                <span className="text-[10px] text-slate-400 block font-medium">Puntaje Obtenido</span>
-                <span className="text-lg sm:text-xl font-black text-emerald-400">{score} pts</span>
+              <div className="space-y-0.5">
+                <span className="text-[10px] font-mono font-bold text-amber-300 tracking-widest uppercase block">
+                  DISTINCIÓN DE PRIMER RESPONDIENTE VETERINARIO
+                </span>
+                <h3 className="text-lg sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-100 to-amber-400">
+                  Rescatista Canino Oficial
+                </h3>
+                <p className="text-[11px] text-slate-300 italic">
+                  Acreditado por temple y pericia en primeros auxilios caninos en situaciones de emergencia.
+                </p>
               </div>
-              <div className="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 text-center">
-                <span className="text-[10px] text-slate-400 block font-medium">Fecha de Emisión</span>
-                <span className="text-xs sm:text-sm font-bold text-cyan-300">{formattedDate}</span>
-              </div>
-            </div>
 
-            {/* Botón Destacado: Descargar Certificado */}
-            <div className="pt-2">
-              <button
-                type="button"
-                onClick={handleDownloadCertificate}
-                className="w-full sm:w-auto mx-auto min-h-[48px] px-8 py-3 bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 active:scale-95 text-slate-950 font-black rounded-xl transition duration-150 shadow-xl shadow-amber-500/30 flex items-center justify-center space-x-2 text-sm sm:text-base border-2 border-amber-200 cursor-pointer"
-              >
-                <span className="text-xl">📜</span>
-                <span>Descargar Certificado Oficial</span>
-              </button>
+              {/* Recuadro del nombre del rescatista */}
+              <div className="py-2 px-3 bg-slate-900/90 rounded-xl border border-amber-500/30 max-w-sm mx-auto">
+                <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">
+                  Otorgado con honor a:
+                </span>
+                <span className="text-base sm:text-lg font-extrabold text-white tracking-wide block truncate">
+                  {playerName.trim() || 'Rescatista Canino'}
+                </span>
+              </div>
+
+              {/* Métricas destacadas del certificado */}
+              <div className="grid grid-cols-2 gap-2.5 max-w-xs mx-auto">
+                <div className="bg-slate-900/60 p-2 rounded-xl border border-slate-800 text-center">
+                  <span className="text-[10px] text-slate-400 block font-medium">Puntaje</span>
+                  <span className="text-base sm:text-lg font-black text-emerald-400">{score} pts</span>
+                </div>
+                <div className="bg-slate-900/60 p-2 rounded-xl border border-slate-800 text-center">
+                  <span className="text-[10px] text-slate-400 block font-medium">Fecha</span>
+                  <span className="text-xs font-bold text-cyan-300">{formattedDate}</span>
+                </div>
+              </div>
             </div>
           </div>
+
+          {/* Botones de acción: Descargar Certificado Oficial y Jugar de Nuevo */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+            <button
+              type="button"
+              onClick={handleDownloadCertificate}
+              className="w-full py-3 px-4 bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 active:scale-95 text-slate-950 font-black rounded-xl transition duration-150 shadow-lg shadow-amber-500/25 flex items-center justify-center space-x-2 text-xs sm:text-sm border border-amber-200 cursor-pointer"
+            >
+              <span className="text-lg">📜</span>
+              <span>Descargar Certificado Oficial</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={resetGame}
+              className="w-full py-3 px-4 bg-slate-800 hover:bg-slate-700 active:scale-95 text-white font-extrabold rounded-xl transition duration-150 border border-slate-700 shadow-md text-xs sm:text-sm flex items-center justify-center space-x-2 cursor-pointer"
+            >
+              <span>🔄</span>
+              <span>Jugar de Nuevo</span>
+            </button>
+          </div>
         </div>
 
-        {/* Formulario para Ingresar Nombre y Guardar Puntuación */}
-        <form onSubmit={handleSaveScore} className="space-y-3 bg-slate-950/80 p-4 rounded-2xl border border-slate-800">
-          <div className="space-y-1.5">
+        {/* COLUMNA DERECHA: Personalización / Guardar y Leaderboard (Top 5) */}
+        <div className="bg-slate-900/95 backdrop-blur-xl rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-2xl space-y-4 max-h-[70vh] flex flex-col justify-between">
+          {/* Formulario para Ingresar Nombre y Guardar Puntuación */}
+          <form onSubmit={handleSaveScore} className="space-y-2.5 bg-slate-950/80 p-3.5 rounded-xl border border-slate-800/80">
             <label htmlFor="playerNameInput" className="text-xs font-semibold text-slate-300 flex items-center justify-between">
-              <span>Personaliza el nombre para tu certificado y ranking:</span>
-              <span className="text-[11px] text-slate-500">Opcional</span>
+              <span>Personaliza tu nombre oficial:</span>
+              <span className="text-[10px] text-slate-500">Ranking & Certificado</span>
             </label>
             <div className="flex flex-col sm:flex-row gap-2">
               <input
@@ -247,93 +258,81 @@ export const VictoryScreen: React.FC = () => {
                 disabled={hasSaved}
                 value={playerName}
                 onChange={(e) => setPlayerName(e.target.value)}
-                placeholder="Escribe tu nombre o alias aquí..."
-                className="flex-1 bg-slate-900 border border-slate-700 focus:border-amber-400 rounded-xl px-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none transition disabled:opacity-60"
+                placeholder="Escribe tu nombre o alias..."
+                className="flex-1 bg-slate-900 border border-slate-700 focus:border-amber-400 rounded-xl px-3 py-2 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none transition disabled:opacity-60"
               />
               <button
                 type="submit"
                 disabled={isSaving || hasSaved}
-                className={`py-2 px-4 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center space-x-1.5 flex-shrink-0 cursor-pointer ${
+                className={`py-2 px-3.5 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center space-x-1.5 flex-shrink-0 cursor-pointer ${
                   hasSaved
                     ? 'bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-700'
                     : 'bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white shadow-md'
                 }`}
               >
                 <span>💾</span>
-                <span>{isSaving ? 'Guardando...' : hasSaved ? 'Puntuación Registrada' : 'Guardar en Ranking'}</span>
+                <span>{isSaving ? 'Guardando...' : hasSaved ? 'Guardado' : 'Guardar'}</span>
               </button>
             </div>
-          </div>
 
-          {feedbackNotice && (
-            <p className="text-xs font-semibold text-emerald-400 bg-emerald-950/40 p-2 rounded-lg border border-emerald-500/30 text-center animate-fade-in">
-              {feedbackNotice}
-            </p>
-          )}
-        </form>
+            {feedbackNotice && (
+              <p className="text-[11px] font-semibold text-emerald-400 bg-emerald-950/40 p-1.5 rounded-lg border border-emerald-500/30 text-center animate-fade-in">
+                {feedbackNotice}
+              </p>
+            )}
+          </form>
 
-        {/* Tabla Leaderboard (Top 5) */}
-        <div className="bg-slate-950/80 rounded-2xl p-4 border border-slate-800 space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xs sm:text-sm font-bold text-white flex items-center space-x-1.5">
-              <span>🏆</span>
-              <span>Tabla de Clasificación (Top 5)</span>
-            </h3>
-            <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
-              Salón de Honor PASR
-            </span>
-          </div>
+          {/* Tabla Leaderboard (Top 5) */}
+          <div className="space-y-2 flex-1 flex flex-col justify-between min-h-0">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs sm:text-sm font-bold text-white flex items-center space-x-1.5">
+                <span>🏆</span>
+                <span>Tabla de Clasificación (Top 5)</span>
+              </h3>
+              <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
+                Salón de Honor PASR
+              </span>
+            </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-slate-800 text-slate-400">
-                  <th className="py-1.5 px-2 font-semibold">#</th>
-                  <th className="py-1.5 px-2 font-semibold">Rescatista</th>
-                  <th className="py-1.5 px-2 font-semibold text-right">Puntaje</th>
-                  <th className="py-1.5 px-2 font-semibold text-right">Tiempo</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/50">
-                {leaderboard.length === 0 ? (
+            <div className="overflow-y-auto max-h-[200px] rounded-xl border border-slate-800/80 bg-slate-950/60">
+              <table className="w-full text-left text-xs">
+                <thead className="sticky top-0 bg-slate-900 border-b border-slate-800 text-slate-400">
                   <tr>
-                    <td colSpan={4} className="py-3 text-center text-slate-500 text-xs">
-                      Sé el primer rescatista en registrar tu puntuación oficial.
-                    </td>
+                    <th className="py-1.5 px-2 font-semibold">#</th>
+                    <th className="py-1.5 px-2 font-semibold">Rescatista</th>
+                    <th className="py-1.5 px-2 font-semibold text-right">Puntaje</th>
+                    <th className="py-1.5 px-2 font-semibold text-right">Tiempo</th>
                   </tr>
-                ) : (
-                  leaderboard.map((item, idx) => (
-                    <tr key={item.id ?? idx} className="hover:bg-slate-900/50 transition">
-                      <td className="py-2 px-2 font-bold text-amber-400">
-                        {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}º`}
-                      </td>
-                      <td className="py-2 px-2 font-medium text-slate-200 truncate max-w-[150px]">
-                        {item.player_name}
-                      </td>
-                      <td className="py-2 px-2 text-right font-bold text-emerald-400">
-                        {item.score}
-                      </td>
-                      <td className="py-2 px-2 text-right font-mono text-cyan-300">
-                        {item.time_left}s
+                </thead>
+                <tbody className="divide-y divide-slate-800/50">
+                  {leaderboard.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="py-3 text-center text-slate-500 text-xs">
+                        Sé el primer rescatista en registrar tu puntuación oficial.
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    leaderboard.map((item, idx) => (
+                      <tr key={item.id ?? idx} className="hover:bg-slate-900/50 transition">
+                        <td className="py-1.5 px-2 font-bold text-amber-400">
+                          {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}º`}
+                        </td>
+                        <td className="py-1.5 px-2 font-medium text-slate-200 truncate max-w-[130px]">
+                          {item.player_name}
+                        </td>
+                        <td className="py-1.5 px-2 text-right font-bold text-emerald-400">
+                          {item.score}
+                        </td>
+                        <td className="py-1.5 px-2 text-right font-mono text-cyan-300">
+                          {item.time_left}s
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-
-        {/* Botón Destacado: Jugar de Nuevo */}
-        <div className="pt-1">
-          <button
-            type="button"
-            onClick={resetGame}
-            className="w-full py-3.5 px-6 bg-slate-800 hover:bg-slate-700 active:scale-95 text-white font-extrabold rounded-xl transition duration-150 border border-slate-700 shadow-xl text-sm sm:text-base flex items-center justify-center space-x-2 cursor-pointer"
-          >
-            <span>🔄</span>
-            <span>Jugar de Nuevo (Reiniciar Protocolo)</span>
-          </button>
         </div>
       </div>
     </div>

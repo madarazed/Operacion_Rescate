@@ -135,59 +135,46 @@ export function downloadRescueCertificate(
   ctx.fillStyle = '#64748b';
   ctx.fillText(`Expedido el ${dateStr}`, centerX, topY + 530);
 
-  // 6. Sellos y Firmas Inferiores
-  const footerY = 900;
+  // 6. Sello Medallón Institucional Centrado (Sin firmas)
+  const footerY = 880;
 
-  // Firma 1 (Izquierda)
+  // Medallón dorado exterior
   ctx.beginPath();
-  ctx.moveTo(centerX - 550, footerY);
-  ctx.lineTo(centerX - 250, footerY);
-  ctx.strokeStyle = '#94a3b8';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-
-  ctx.font = 'bold 18px sans-serif';
-  ctx.fillStyle = '#1e293b';
-  ctx.fillText('DRA. VALENTINA SOTO', centerX - 400, footerY + 28);
-  ctx.font = '14px sans-serif';
-  ctx.fillStyle = '#64748b';
-  ctx.fillText('Dirección de Triage y Urgencias Veterinarias', centerX - 400, footerY + 50);
-
-  // Sello Central de Oro y Rojo
-  ctx.beginPath();
-  ctx.arc(centerX, footerY - 20, 60, 0, Math.PI * 2);
-  ctx.fillStyle = '#d97706';
+  ctx.arc(centerX, footerY, 70, 0, Math.PI * 2);
+  ctx.fillStyle = '#0f172a'; // slate-900
   ctx.fill();
-  ctx.strokeStyle = '#0f172a';
-  ctx.lineWidth = 4;
+  ctx.strokeStyle = '#d97706'; // oro
+  ctx.lineWidth = 5;
   ctx.stroke();
 
+  // Borde interior de oro fino
   ctx.beginPath();
-  ctx.arc(centerX, footerY - 20, 52, 0, Math.PI * 2);
-  ctx.strokeStyle = '#fef3c7';
+  ctx.arc(centerX, footerY, 60, 0, Math.PI * 2);
+  ctx.strokeStyle = '#fef3c7'; // amber-100
   ctx.lineWidth = 2;
   ctx.stroke();
 
-  ctx.font = 'bold 16px sans-serif';
-  ctx.fillStyle = '#ffffff';
-  ctx.fillText('ACREDITADO', centerX, footerY - 24);
+  // Textos dentro del medallón
   ctx.font = 'bold 12px sans-serif';
-  ctx.fillText('PASR 2026', centerX, footerY - 8);
-
-  // Firma 2 (Derecha)
-  ctx.beginPath();
-  ctx.moveTo(centerX + 250, footerY);
-  ctx.lineTo(centerX + 550, footerY);
-  ctx.strokeStyle = '#94a3b8';
-  ctx.lineWidth = 2;
-  ctx.stroke();
+  ctx.fillStyle = '#fbbf24'; // oro brillante
+  ctx.fillText('★ VALIDEZ OFICIAL ★', centerX, footerY - 24);
 
   ctx.font = 'bold 18px sans-serif';
-  ctx.fillStyle = '#1e293b';
-  ctx.fillText('COMITÉ DE PRIMEROS AUXILIOS', centerX + 400, footerY + 28);
-  ctx.font = '14px sans-serif';
-  ctx.fillStyle = '#64748b';
-  ctx.fillText('Brigada de Rescate Animal de Campo', centerX + 400, footerY + 50);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText('ACREDITADO', centerX, footerY + 2);
+
+  ctx.font = 'bold 14px sans-serif';
+  ctx.fillStyle = '#fef3c7';
+  ctx.fillText('PASR 2026', centerX, footerY + 24);
+
+  // Leyenda institucional centrada al pie
+  ctx.font = '600 15px sans-serif';
+  ctx.fillStyle = '#64748b'; // slate-500
+  ctx.fillText(
+    'REGISTRO DE PRIMEROS RESPONDIENTES EN EMERGENCIAS VETERINARIAS • PROTOCOLO PASR',
+    centerX,
+    footerY + 110
+  );
 
   // 7. Descarga automática
   const dataUrl = canvas.toDataURL('image/png');
