@@ -71,6 +71,7 @@ interface ZoneConfig {
   borderClass: string;
   bgClass: string;
   activeClass: string;
+  icon: string;
 }
 
 const ZONES: ZoneConfig[] = [
@@ -79,27 +80,30 @@ const ZONES: ZoneConfig[] = [
     title: '🔴 Triage Rojo',
     subtitle: 'Crítico / Inmediato',
     colorClass: 'text-red-400',
-    borderClass: 'border-red-500/60',
-    bgClass: 'bg-red-950/40',
-    activeClass: 'bg-red-900/70 ring-4 ring-red-400 border-red-300',
+    borderClass: 'border-red-500/70',
+    bgClass: 'bg-red-950/50',
+    activeClass: 'bg-red-900/80 ring-4 ring-red-400 border-red-300 shadow-red-500/40',
+    icon: '🔴',
   },
   {
     id: 'zone-yellow',
     title: '🟡 Triage Amarillo',
     subtitle: 'Urgente / Espera',
     colorClass: 'text-amber-400',
-    borderClass: 'border-amber-500/60',
-    bgClass: 'bg-amber-950/40',
-    activeClass: 'bg-amber-900/70 ring-4 ring-amber-400 border-amber-300',
+    borderClass: 'border-amber-500/70',
+    bgClass: 'bg-amber-950/50',
+    activeClass: 'bg-amber-900/80 ring-4 ring-amber-400 border-amber-300 shadow-amber-500/40',
+    icon: '🟡',
   },
   {
     id: 'zone-green',
     title: '🟢 Triage Verde',
     subtitle: 'Leve / Estable',
     colorClass: 'text-emerald-400',
-    borderClass: 'border-emerald-500/60',
-    bgClass: 'bg-emerald-950/40',
-    activeClass: 'bg-emerald-900/70 ring-4 ring-emerald-400 border-emerald-300',
+    borderClass: 'border-emerald-500/70',
+    bgClass: 'bg-emerald-950/50',
+    activeClass: 'bg-emerald-900/80 ring-4 ring-emerald-400 border-emerald-300 shadow-emerald-500/40',
+    icon: '🟢',
   },
 ];
 
@@ -116,47 +120,50 @@ const DroppableZone: React.FC<DroppableZoneProps> = ({ zone, assignedPatient }) 
   return (
     <div
       ref={setNodeRef}
-      className={`rounded-2xl border-2 p-2 sm:p-2.5 backdrop-blur-md transition-all flex flex-col justify-between min-h-[80px] sm:min-h-[100px] ${
+      className={`rounded-2xl border-2 p-3 backdrop-blur-md transition-all flex flex-col justify-between min-h-[115px] sm:min-h-[135px] ${
         isOver
-          ? `${zone.activeClass} scale-105 shadow-xl`
+          ? `${zone.activeClass} scale-105 shadow-2xl ring-4 ring-offset-2 ring-offset-slate-900 animate-pulse`
           : assignedPatient
-          ? `${zone.borderClass} bg-black/60 shadow-md`
-          : `${zone.borderClass} ${zone.bgClass}`
+          ? `${zone.borderClass} bg-black/70 shadow-lg border-2`
+          : `${zone.borderClass} ${zone.bgClass} shadow-md`
       }`}
     >
       <div>
-        <div className="flex items-center justify-between">
-          <h3 className={`font-bold text-xs sm:text-sm truncate ${zone.colorClass}`}>
+        <div className="flex items-center justify-between gap-1">
+          <h3 className={`font-bold text-sm sm:text-base tracking-wide truncate ${zone.colorClass}`}>
             {zone.title}
           </h3>
           {assignedPatient && (
-            <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-1.5 py-0.2 rounded-full font-bold">
-              ✓
+            <span className="text-xs bg-emerald-500/25 text-emerald-300 border border-emerald-500/50 px-2 py-0.5 rounded-full font-bold shadow-sm">
+              ✓ Clasificado
             </span>
           )}
         </div>
-        <p className="text-[10px] text-slate-300 truncate hidden xs:block">{zone.subtitle}</p>
+        <p className="text-xs text-slate-300 font-medium tracking-tight mt-0.5">{zone.subtitle}</p>
       </div>
 
       {assignedPatient ? (
-        <div className="bg-black/50 rounded-xl p-1 sm:p-1.5 border border-white/10 flex items-center space-x-1.5 animate-fade-in">
+        <div className="bg-black/60 rounded-xl p-2 border border-white/15 flex items-center space-x-2.5 animate-fade-in shadow-inner">
           <img
             src={assignedPatient.image}
             alt={assignedPatient.name}
-            className="w-6 h-6 sm:w-7 sm:h-7 object-contain rounded-lg bg-black/60 p-0.5 border border-slate-600 flex-shrink-0"
+            className="w-8 h-8 sm:w-10 sm:h-10 object-contain rounded-lg bg-black/70 p-0.5 border border-slate-600 flex-shrink-0"
           />
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] sm:text-xs font-bold text-white truncate">{assignedPatient.name}</p>
+            <p className="text-xs sm:text-sm font-bold text-white truncate">{assignedPatient.name}</p>
+            <p className="text-[11px] text-emerald-300 font-medium">Asignado con éxito</p>
           </div>
         </div>
       ) : (
         <div
-          className={`border border-dashed rounded-xl p-1 text-center flex items-center justify-center h-7 sm:h-9 transition-colors ${
-            isOver ? 'border-white bg-white/25 text-white' : 'border-white/20 bg-black/20 text-slate-400'
+          className={`border-2 border-dashed rounded-xl p-2 text-center flex items-center justify-center h-10 sm:h-12 transition-all ${
+            isOver
+              ? 'border-white bg-white/30 text-white font-bold shadow-lg scale-102'
+              : 'border-white/25 bg-black/30 text-slate-300'
           }`}
         >
-          <span className="text-[10px] sm:text-xs font-medium truncate">
-            {isOver ? '¡Soltar aquí!' : 'Bahía libre'}
+          <span className="text-xs sm:text-sm font-bold tracking-wide flex items-center justify-center space-x-1">
+            <span>{isOver ? '🎯 ¡Soltar aquí!' : '📥 Bahía libre'}</span>
           </span>
         </div>
       )}
@@ -182,77 +189,79 @@ const ActivePatientCard: React.FC<ActivePatientCardProps> = ({
   return (
     <div
       ref={setNodeRef}
-      className={`relative select-none p-3 sm:p-4 rounded-2xl backdrop-blur-md transition-all border ${
+      className={`relative select-none p-4 sm:p-5 rounded-2xl backdrop-blur-xl transition-all border-2 ${
         hasError
-          ? 'bg-red-950/90 border-red-500 ring-4 ring-red-500 animate-pulse'
+          ? 'bg-red-950/95 border-red-500 ring-4 ring-red-500 animate-pulse'
           : isDragging
           ? 'opacity-30 border-blue-400'
-          : 'bg-slate-900/90 hover:bg-slate-900/95 border-slate-700/70 shadow-2xl'
+          : 'bg-slate-900/95 hover:bg-slate-900 border-slate-700/80 shadow-2xl'
       }`}
     >
-      {/* Zona táctil y arrastrable */}
+      {/* Zona táctil y arrastrable - Paciente Hero */}
       <div
-        className="flex items-center space-x-3 sm:space-x-4 cursor-grab active:cursor-grabbing touch-none"
+        className="flex items-center space-x-4 sm:space-x-5 cursor-grab active:cursor-grabbing touch-none"
         {...listeners}
         {...attributes}
       >
-        <div className="relative">
+        {/* Contenedor grande del animal w-24 h-24 sm:w-28 sm:h-28 */}
+        <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-b from-slate-800 to-black/85 p-2 border-2 border-slate-600/80 shadow-xl flex items-center justify-center flex-shrink-0">
           <img
             src={patient.image}
             alt={patient.name}
-            className="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded-2xl bg-black/50 p-1.5 border border-slate-700 shadow-inner flex-shrink-0"
+            className="w-20 h-20 object-contain animate-pulse drop-shadow-md select-none"
           />
-          <span className="absolute -bottom-1 -right-1 bg-blue-500 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full shadow">
-            Arrastrar
+          <span className="absolute -bottom-2 px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-full shadow-md border border-blue-400 tracking-wide">
+            🖐️ Arrastrar
           </span>
         </div>
 
+        {/* Información Clínica Hero */}
         <div className="flex-1 min-w-0 space-y-1">
-          <div className="flex items-center justify-between">
-            <span className="text-sm sm:text-base font-bold text-white truncate">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="text-lg sm:text-xl font-extrabold text-white tracking-tight truncate">
               {patient.name}
-            </span>
-            <span className="text-[10px] text-blue-300 bg-blue-500/20 px-2 py-0.5 rounded-full border border-blue-500/30">
-              Mesa de Triage
+            </h3>
+            <span className="text-xs text-blue-300 font-bold bg-blue-500/20 px-2.5 py-0.5 rounded-full border border-blue-500/40 flex-shrink-0">
+              En Evaluación
             </span>
           </div>
 
-          <p className="text-xs sm:text-sm text-slate-200 leading-snug">
+          <p className="text-sm sm:text-base text-slate-200 leading-snug font-medium mt-1">
             {patient.condition}
           </p>
         </div>
       </div>
 
-      {/* Botones secundarios de asignación rápida para tocar directamente */}
-      <div className="pt-3 border-t border-slate-800/80 mt-3 space-y-1.5">
-        <div className="flex items-center justify-between text-[11px] text-slate-400 font-medium">
-          <span>O toca un código para clasificar:</span>
-          <span className="text-[10px] text-slate-500">Toque directo</span>
+      {/* Botones arcade táctiles de gran impacto */}
+      <div className="pt-4 border-t border-slate-800/90 mt-4 space-y-2">
+        <div className="flex items-center justify-between text-xs text-slate-400 font-semibold px-1">
+          <span>O selecciona el código de triage con un toque:</span>
+          <span className="text-[11px] text-slate-500">Asignación táctil</span>
         </div>
 
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
           <button
             type="button"
             onClick={() => onDirectAssign(patient.id, 'zone-red')}
-            className="py-2 px-2 bg-red-600/90 hover:bg-red-500 active:scale-95 text-xs sm:text-sm font-bold text-white rounded-xl transition shadow-md border border-red-400/40 flex items-center justify-center space-x-1 cursor-pointer"
+            className="h-12 sm:h-14 py-2.5 px-3 rounded-xl sm:rounded-2xl bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 active:scale-95 text-white text-sm sm:text-base font-bold shadow-lg shadow-red-500/25 border-2 border-red-400/50 flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
-            <span>🔴</span>
+            <span className="text-lg">🔴</span>
             <span>Rojo</span>
           </button>
           <button
             type="button"
             onClick={() => onDirectAssign(patient.id, 'zone-yellow')}
-            className="py-2 px-2 bg-amber-600/90 hover:bg-amber-500 active:scale-95 text-xs sm:text-sm font-bold text-white rounded-xl transition shadow-md border border-amber-400/40 flex items-center justify-center space-x-1 cursor-pointer"
+            className="h-12 sm:h-14 py-2.5 px-3 rounded-xl sm:rounded-2xl bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 active:scale-95 text-white text-sm sm:text-base font-bold shadow-lg shadow-amber-500/25 border-2 border-amber-400/50 flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
-            <span>🟡</span>
+            <span className="text-lg">🟡</span>
             <span>Amarillo</span>
           </button>
           <button
             type="button"
             onClick={() => onDirectAssign(patient.id, 'zone-green')}
-            className="py-2 px-2 bg-emerald-600/90 hover:bg-emerald-500 active:scale-95 text-xs sm:text-sm font-bold text-white rounded-xl transition shadow-md border border-emerald-400/40 flex items-center justify-center space-x-1 cursor-pointer"
+            className="h-12 sm:h-14 py-2.5 px-3 rounded-xl sm:rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 active:scale-95 text-white text-sm sm:text-base font-bold shadow-lg shadow-emerald-500/25 border-2 border-emerald-400/50 flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
-            <span>🟢</span>
+            <span className="text-lg">🟢</span>
             <span>Verde</span>
           </button>
         </div>
@@ -368,7 +377,7 @@ export const Level2: React.FC = () => {
       onDragCancel={() => setActiveId(null)}
     >
       <div
-        className="w-full h-[100dvh] pt-14 p-3 sm:p-4 relative overflow-hidden bg-cover bg-center flex flex-col justify-between"
+        className="w-full h-[100dvh] pt-14 p-3.5 sm:p-6 relative overflow-hidden bg-cover bg-center flex flex-col justify-between select-none"
         style={{ backgroundImage: `url(${triageBg})` }}
       >
         {/* Capa de oscurecimiento suave */}
@@ -399,31 +408,31 @@ export const Level2: React.FC = () => {
           </div>
         )}
 
-        {/* Bahías de Triage (Parte Superior Fija) */}
-        <div className="relative z-20 w-full max-w-3xl mx-auto space-y-2">
+        {/* Bahías de Triage (Parte Superior Fija y Ampliada) */}
+        <div className="relative z-20 w-full max-w-4xl mx-auto space-y-2.5">
           <div className="flex items-center justify-between">
             <div>
-              <span className="inline-block bg-blue-500/20 text-blue-300 border border-blue-500/30 text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+              <span className="inline-block bg-blue-500/20 text-blue-300 border border-blue-500/30 text-xs font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                 Fase 2: Socorrer (Triage START)
               </span>
-              <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
+              <h2 className="text-lg sm:text-xl font-extrabold text-white tracking-tight">
                 Bahías de Triage
               </h2>
             </div>
 
             {/* Chips de progreso de pacientes */}
-            <div className="flex items-center space-x-1.5">
-              <span className="text-[11px] text-slate-300 font-semibold hidden xs:inline">
+            <div className="flex items-center space-x-2">
+              <span className="text-xs text-slate-300 font-semibold hidden xs:inline">
                 Progreso:
               </span>
-              <span className="text-xs font-bold text-white bg-slate-900/80 px-2.5 py-0.5 rounded-full border border-slate-700">
+              <span className="text-xs sm:text-sm font-bold text-white bg-slate-900/90 px-3 py-1 rounded-full border border-slate-700 shadow">
                 {totalClassified} / {PATIENTS.length}
               </span>
             </div>
           </div>
 
-          {/* Grid de 3 Bahías en fila balanceada */}
-          <div className="grid grid-cols-3 gap-2 sm:gap-3 w-full">
+          {/* Grid de 3 Bahías en fila balanceada y ampliada */}
+          <div className="grid grid-cols-3 gap-2.5 sm:gap-4 w-full">
             {ZONES.map((zone) => {
               const assignedId = assignedPatients[zone.id];
               const assignedPatient = PATIENTS.find((p) => p.id === assignedId);
@@ -439,7 +448,7 @@ export const Level2: React.FC = () => {
         </div>
 
         {/* Zona Central: Feedback Pedagógico (Toast) */}
-        <div className="relative z-20 w-full max-w-lg mx-auto min-h-[36px] flex items-center justify-center">
+        <div className="relative z-20 w-full max-w-lg mx-auto min-h-[38px] flex items-center justify-center">
           <AnimatePresence mode="wait">
             {feedbackToast && (
               <motion.div
@@ -447,10 +456,10 @@ export const Level2: React.FC = () => {
                 initial={{ opacity: 0, y: -6, scale: 0.96 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -4, scale: 0.96 }}
-                className={`w-full py-1.5 px-3 rounded-xl text-center text-xs font-medium border shadow-lg ${
+                className={`w-full py-2 px-3.5 rounded-xl text-center text-xs sm:text-sm font-semibold border shadow-xl ${
                   feedbackToast.type === 'success'
-                    ? 'bg-emerald-950/90 text-emerald-200 border-emerald-500/50'
-                    : 'bg-red-950/90 text-red-200 border-red-500/50'
+                    ? 'bg-emerald-950/95 text-emerald-200 border-emerald-500/60'
+                    : 'bg-red-950/95 text-red-200 border-red-500/60'
                 }`}
               >
                 {feedbackToast.type === 'success' ? '💡 ' : '⚠️ '}
@@ -460,14 +469,14 @@ export const Level2: React.FC = () => {
           </AnimatePresence>
         </div>
 
-        {/* Mesa de Examen (1 Solo Paciente por Turno, sin scroll) */}
-        <div className="relative z-20 w-full max-w-lg mx-auto pb-1">
-          <div className="bg-slate-950/90 backdrop-blur-md rounded-2xl p-3 sm:p-4 border border-slate-800 shadow-2xl space-y-2">
+        {/* Mesa de Examen (1 Solo Paciente por Turno con Hero Card) */}
+        <div className="relative z-20 w-full max-w-xl mx-auto pb-1">
+          <div className="bg-slate-950/90 backdrop-blur-md rounded-2xl p-3.5 sm:p-5 border border-slate-800 shadow-2xl space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+              <span className="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-wider">
                 Mesa de Examen ({currentPatient ? `Paciente ${totalClassified + 1} de 3` : 'Completado'})
               </span>
-              <span className="text-[10px] text-slate-400">
+              <span className="text-xs text-slate-400">
                 {currentPatient ? 'Arrastra o toca para clasificar' : 'Todos clasificados'}
               </span>
             </div>
@@ -499,23 +508,25 @@ export const Level2: React.FC = () => {
         {/* DragOverlay para que el paciente siga el dedo/cursor sin recortarse */}
         <DragOverlay dropAnimation={null}>
           {activeDraggedPatient ? (
-            <div className="w-72 sm:w-80 p-3.5 rounded-2xl bg-slate-900/95 border-2 border-blue-400 shadow-2xl scale-105 rotate-2 opacity-95 backdrop-blur-xl text-white pointer-events-none">
-              <div className="flex items-center space-x-3">
-                <img
-                  src={activeDraggedPatient.image}
-                  alt={activeDraggedPatient.name}
-                  className="w-14 h-14 object-contain rounded-xl bg-black/60 p-1 border border-slate-700 flex-shrink-0"
-                />
+            <div className="w-80 sm:w-96 p-4 rounded-2xl bg-slate-900/95 border-2 border-blue-400 shadow-2xl scale-105 rotate-2 opacity-95 backdrop-blur-xl text-white pointer-events-none ring-4 ring-blue-500/30">
+              <div className="flex items-center space-x-3.5">
+                <div className="w-20 h-20 rounded-xl bg-black/70 p-1.5 border border-slate-600 flex-shrink-0 flex items-center justify-center">
+                  <img
+                    src={activeDraggedPatient.image}
+                    alt={activeDraggedPatient.name}
+                    className="w-16 h-16 object-contain"
+                  />
+                </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm font-bold text-white truncate">
+                  <p className="text-base font-extrabold text-white truncate">
                     {activeDraggedPatient.name}
                   </p>
-                  <p className="text-[11px] text-slate-200 line-clamp-2 mt-0.5">
+                  <p className="text-xs text-slate-200 line-clamp-2 mt-0.5 font-medium leading-snug">
                     {activeDraggedPatient.condition}
                   </p>
                 </div>
               </div>
-              <div className="mt-2 text-center text-[10px] text-blue-300 font-semibold bg-blue-950/60 rounded-lg py-1 border border-blue-500/30">
+              <div className="mt-2.5 text-center text-xs text-blue-300 font-bold bg-blue-950/80 rounded-lg py-1.5 border border-blue-500/40">
                 Suelta en la bahía Rojo, Amarillo o Verde
               </div>
             </div>
