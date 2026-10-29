@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import confetti from 'canvas-confetti';
 import { useGameStore } from '../../store/gameStore';
 import { playVictoryFanfare } from '../../utils/soundEffects';
 import { downloadRescueCertificate } from '../../utils/certificateGenerator';
@@ -24,10 +25,40 @@ export const VictoryScreen: React.FC = () => {
   const [hasSaved, setHasSaved] = useState<boolean>(false);
   const [feedbackNotice, setFeedbackNotice] = useState<string | null>(null);
 
-  // Cargar tabla inicial y reproducir fanfarria al montar
+  // Cargar tabla inicial, reproducir fanfarria y disparar confeti festivo al montar
   useEffect(() => {
     playVictoryFanfare();
     fetchLeaderboard();
+
+    try {
+      const duration = 2.5 * 1000;
+      const animationEnd = Date.now() + duration;
+      const colors = ['#f59e0b', '#10b981', '#38bdf8', '#fbbf24', '#ffffff'];
+
+      const frame = () => {
+        confetti({
+          particleCount: 4,
+          angle: 60,
+          spread: 60,
+          origin: { x: 0, y: 0.7 },
+          colors,
+        });
+        confetti({
+          particleCount: 4,
+          angle: 120,
+          spread: 60,
+          origin: { x: 1, y: 0.7 },
+          colors,
+        });
+
+        if (Date.now() < animationEnd) {
+          requestAnimationFrame(frame);
+        }
+      };
+      frame();
+    } catch {
+      // Ignorar si el navegador restringe animaciones de canvas
+    }
   }, []);
 
   const fetchLeaderboard = async () => {
@@ -57,7 +88,7 @@ export const VictoryScreen: React.FC = () => {
 
   const handleSaveScore = async (e: React.FormEvent) => {
     e.preventDefault();
-    const cleanName = playerName.trim() || 'Rescatista Anónimo';
+    const cleanName = playerName.trim() || 'Rescatista Canino';
     setIsSaving(true);
     setFeedbackNotice(null);
 
@@ -108,7 +139,7 @@ export const VictoryScreen: React.FC = () => {
 
   const handleDownloadCertificate = () => {
     downloadRescueCertificate(
-      playerName.trim() || 'Rescatista PASR',
+      playerName.trim() || 'Rescatista Canino',
       score,
       new Date().toLocaleDateString('es-ES', {
         year: 'numeric',
@@ -118,55 +149,120 @@ export const VictoryScreen: React.FC = () => {
     );
   };
 
+  const formattedDate = new Date().toLocaleDateString('es-ES', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
   return (
-    <div className="w-full h-full pt-16 pb-8 px-4 sm:px-6 overflow-y-auto flex items-center justify-center">
-      <div className="w-full max-w-2xl bg-slate-900/90 backdrop-blur-md rounded-3xl p-6 sm:p-8 border border-slate-700/60 shadow-2xl text-white space-y-6 my-auto">
-        {/* Cabecera de Graduación */}
+    <div className="w-full h-full pt-16 pb-8 px-3.5 sm:px-6 overflow-y-auto flex items-center justify-center select-none">
+      <div className="w-full max-w-2xl bg-slate-900/95 backdrop-blur-xl rounded-3xl p-5 sm:p-8 border border-slate-700/80 shadow-2xl text-white space-y-6 my-auto">
+        {/* Cabecera Festiva */}
         <div className="text-center space-y-2">
-          <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-3xl border border-emerald-500/40 shadow-inner">
+          <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-3xl border border-emerald-500/40 shadow-inner animate-bounce">
             🎓
           </div>
           <span className="inline-block bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-            Graduación Médica
+            Misión Cumplida con Honores
           </span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            ¡Misión Rescate Cumplida!
+          <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            ¡Graduación de Rescatista!
           </h2>
-          <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-lg mx-auto">
-            Has dominado el protocolo <strong>PASR</strong> (Proteger, Alertar, Socorrer y Remitir).
-            Tus decisiones de triage y hemostasia salvaron la vida del paciente.
+          <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-md mx-auto">
+            Completaste con éxito las fases de <strong>Proteger, Alertar, Socorrer y Remitir (PASR)</strong>.
           </p>
         </div>
 
-        {/* Métricas del Jugador */}
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800">
-          <div className="text-center">
-            <span className="text-[11px] text-slate-400 font-medium block">Puntaje Final</span>
-            <span className="text-2xl sm:text-3xl font-black text-emerald-400">{score} pts</span>
-          </div>
-          <div className="text-center">
-            <span className="text-[11px] text-slate-400 font-medium block">Tiempo Restante</span>
-            <span className="text-2xl sm:text-3xl font-black text-cyan-400 font-mono">{globalTimer}s</span>
+        {/* TARJETA DEL CERTIFICADO CON BORDES DECORATIVOS DORADOS */}
+        <div className="relative rounded-3xl p-1 bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500 shadow-[0_0_40px_rgba(245,158,11,0.25)]">
+          <div className="bg-slate-950/95 rounded-[22px] p-5 sm:p-7 border border-amber-400/40 text-center space-y-4 relative overflow-hidden">
+            {/* Esquinas ornamentales */}
+            <div className="absolute top-2 left-2 text-amber-400 text-xs font-serif">❖</div>
+            <div className="absolute top-2 right-2 text-amber-400 text-xs font-serif">❖</div>
+            <div className="absolute bottom-2 left-2 text-amber-400 text-xs font-serif">❖</div>
+            <div className="absolute bottom-2 right-2 text-amber-400 text-xs font-serif">❖</div>
+
+            <div className="space-y-1">
+              <span className="text-[10px] sm:text-xs font-mono font-bold text-amber-300 tracking-widest uppercase block">
+                DISTINCIÓN DE PRIMER RESPONDIENTE VETERINARIO
+              </span>
+              <h3 className="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-100 to-amber-400">
+                Rescatista Canino Oficial
+              </h3>
+              <p className="text-[11px] sm:text-xs text-slate-300 italic">
+                Acreditado por temple y pericia en primeros auxilios caninos en situaciones de emergencia.
+              </p>
+            </div>
+
+            {/* Recuadro del nombre del rescatista */}
+            <div className="py-2.5 px-4 bg-slate-900/90 rounded-xl border border-amber-500/30 max-w-md mx-auto">
+              <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">
+                Otorgado con honor a:
+              </span>
+              <span className="text-lg sm:text-xl font-extrabold text-white tracking-wide block truncate">
+                {playerName.trim() || 'Rescatista Canino'}
+              </span>
+            </div>
+
+            {/* Métricas destacadas del certificado */}
+            <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto">
+              <div className="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 text-center">
+                <span className="text-[10px] text-slate-400 block font-medium">Puntaje Obtenido</span>
+                <span className="text-lg sm:text-xl font-black text-emerald-400">{score} pts</span>
+              </div>
+              <div className="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 text-center">
+                <span className="text-[10px] text-slate-400 block font-medium">Fecha de Emisión</span>
+                <span className="text-xs sm:text-sm font-bold text-cyan-300">{formattedDate}</span>
+              </div>
+            </div>
+
+            {/* Botón Destacado: Descargar Certificado */}
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={handleDownloadCertificate}
+                className="w-full sm:w-auto mx-auto min-h-[48px] px-8 py-3 bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 active:scale-95 text-slate-950 font-black rounded-xl transition duration-150 shadow-xl shadow-amber-500/30 flex items-center justify-center space-x-2 text-sm sm:text-base border-2 border-amber-200 cursor-pointer"
+              >
+                <span className="text-xl">📜</span>
+                <span>Descargar Certificado Oficial</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Formulario de Registro y Certificado */}
-        <form onSubmit={handleSaveScore} className="space-y-3">
+        {/* Formulario para Ingresar Nombre y Guardar Puntuación */}
+        <form onSubmit={handleSaveScore} className="space-y-3 bg-slate-950/80 p-4 rounded-2xl border border-slate-800">
           <div className="space-y-1.5">
-            <label htmlFor="playerNameInput" className="text-xs font-semibold text-slate-300 block">
-              Nombre o Alias del Rescatista
+            <label htmlFor="playerNameInput" className="text-xs font-semibold text-slate-300 flex items-center justify-between">
+              <span>Personaliza el nombre para tu certificado y ranking:</span>
+              <span className="text-[11px] text-slate-500">Opcional</span>
             </label>
-            <input
-              id="playerNameInput"
-              type="text"
-              maxLength={60}
-              required
-              disabled={hasSaved}
-              value={playerName}
-              onChange={(e) => setPlayerName(e.target.value)}
-              placeholder="Ej: Dra. García / Rescatista Alpha"
-              className="w-full bg-slate-950 border border-slate-700 focus:border-emerald-500 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none transition disabled:opacity-60"
-            />
+            <div className="flex flex-col sm:flex-row gap-2">
+              <input
+                id="playerNameInput"
+                type="text"
+                maxLength={50}
+                required
+                disabled={hasSaved}
+                value={playerName}
+                onChange={(e) => setPlayerName(e.target.value)}
+                placeholder="Escribe tu nombre o alias aquí..."
+                className="flex-1 bg-slate-900 border border-slate-700 focus:border-amber-400 rounded-xl px-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none transition disabled:opacity-60"
+              />
+              <button
+                type="submit"
+                disabled={isSaving || hasSaved}
+                className={`py-2 px-4 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center space-x-1.5 flex-shrink-0 cursor-pointer ${
+                  hasSaved
+                    ? 'bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-700'
+                    : 'bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white shadow-md'
+                }`}
+              >
+                <span>💾</span>
+                <span>{isSaving ? 'Guardando...' : hasSaved ? 'Puntuación Registrada' : 'Guardar en Ranking'}</span>
+              </button>
+            </div>
           </div>
 
           {feedbackNotice && (
@@ -174,30 +270,6 @@ export const VictoryScreen: React.FC = () => {
               {feedbackNotice}
             </p>
           )}
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-            <button
-              type="submit"
-              disabled={isSaving || hasSaved}
-              className={`py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold transition shadow-md flex items-center justify-center space-x-1.5 ${
-                hasSaved
-                  ? 'bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-700'
-                  : 'bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white'
-              }`}
-            >
-              <span>💾</span>
-              <span>{isSaving ? 'Guardando...' : hasSaved ? 'Puntuación Registrada' : 'Guardar Puntuación'}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleDownloadCertificate}
-              className="py-2.5 px-4 bg-amber-600 hover:bg-amber-500 active:scale-95 text-white text-xs sm:text-sm font-bold rounded-xl transition shadow-md flex items-center justify-center space-x-1.5 border border-amber-400/40"
-            >
-              <span>📜</span>
-              <span>Descargar Certificado Oficial</span>
-            </button>
-          </div>
         </form>
 
         {/* Tabla Leaderboard (Top 5) */}
@@ -207,7 +279,9 @@ export const VictoryScreen: React.FC = () => {
               <span>🏆</span>
               <span>Tabla de Clasificación (Top 5)</span>
             </h3>
-            <span className="text-[10px] text-slate-400 uppercase tracking-wider">Honor PASR</span>
+            <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
+              Salón de Honor PASR
+            </span>
           </div>
 
           <div className="overflow-x-auto">
@@ -250,12 +324,12 @@ export const VictoryScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* Botón para reiniciar partida */}
+        {/* Botón Destacado: Jugar de Nuevo */}
         <div className="pt-1">
           <button
             type="button"
             onClick={resetGame}
-            className="w-full py-3 px-4 bg-slate-800 hover:bg-slate-700 active:scale-95 text-white font-bold rounded-xl transition duration-150 border border-slate-700 shadow-lg text-xs sm:text-sm flex items-center justify-center space-x-2"
+            className="w-full py-3.5 px-6 bg-slate-800 hover:bg-slate-700 active:scale-95 text-white font-extrabold rounded-xl transition duration-150 border border-slate-700 shadow-xl text-sm sm:text-base flex items-center justify-center space-x-2 cursor-pointer"
           >
             <span>🔄</span>
             <span>Jugar de Nuevo (Reiniciar Protocolo)</span>

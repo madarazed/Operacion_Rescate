@@ -1,6 +1,7 @@
 import React from 'react';
 import { useGameStore } from './store/gameStore';
 import { GameLayout } from './components/layouts/GameLayout';
+import { StartScreen } from './components/levels/StartScreen';
 import { Level1 } from './components/levels/Level1';
 import { Level2 } from './components/levels/Level2';
 import { Level3 } from './components/levels/Level3';
@@ -39,7 +40,7 @@ export const App: React.FC = () => {
 
             <button
               onClick={resetGame}
-              className="w-full bg-red-600 hover:bg-red-700 active:scale-95 text-white font-bold py-3 px-6 rounded-xl transition duration-150 shadow-md"
+              className="w-full bg-red-600 hover:bg-red-700 active:scale-95 text-white font-bold py-3 px-6 rounded-xl transition duration-150 shadow-md cursor-pointer"
             >
               Reiniciar Juego
             </button>
@@ -49,6 +50,7 @@ export const App: React.FC = () => {
 
       {/* Renderizado condicional por nivel dentro de GameLayout */}
       <GameLayout>
+        {currentLevel === 0 && <StartScreen />}
         {currentLevel === 1 && <Level1 />}
         {currentLevel === 2 && <Level2 />}
         {currentLevel === 3 && <Level3 />}

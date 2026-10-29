@@ -1,14 +1,24 @@
 import { create } from 'zustand';
 import type { GameState } from '../types';
+import { setSoundMuted } from '../utils/soundEffects';
 
 export const useGameStore = create<GameState>((set) => ({
-  currentLevel: 1,
+  currentLevel: 0,
   score: 0,
   globalTimer: 60,
   playerData: { id: null, name: '' },
   isGameOver: false,
   gameOverReason: '',
+  isMuted: false,
   actions: {
+    startGame: () =>
+      set(() => ({
+        currentLevel: 1,
+        score: 0,
+        globalTimer: 60,
+        isGameOver: false,
+        gameOverReason: '',
+      })),
     nextLevel: () =>
       set((state) => ({
         currentLevel: state.currentLevel + 1,
@@ -35,9 +45,15 @@ export const useGameStore = create<GameState>((set) => ({
         isGameOver: true,
         gameOverReason: reason,
       })),
+    toggleSound: () =>
+      set((state) => {
+        const nextMuted = !state.isMuted;
+        setSoundMuted(nextMuted);
+        return { isMuted: nextMuted };
+      }),
     resetGame: () =>
       set(() => ({
-        currentLevel: 1,
+        currentLevel: 0,
         score: 0,
         globalTimer: 60,
         isGameOver: false,

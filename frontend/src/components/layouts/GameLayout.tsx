@@ -7,50 +7,76 @@ export const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
   const globalTimer = useGameStore((state) => state.globalTimer);
   const isGameOver = useGameStore((state) => state.isGameOver);
   const currentLevel = useGameStore((state) => state.currentLevel);
+  const isMuted = useGameStore((state) => state.isMuted);
   const deductTime = useGameStore((state) => state.actions.deductTime);
+  const toggleSound = useGameStore((state) => state.actions.toggleSound);
 
   useEffect(() => {
-    if (isGameOver) return;
+    // No descontar tiempo en la pantalla de inicio o cuando el juego ha finalizado
+    if (isGameOver || currentLevel === 0) return;
 
     const interval = setInterval(() => {
       deductTime(1);
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isGameOver, deductTime]);
+  }, [isGameOver, currentLevel, deductTime]);
 
-  const timerColor = globalTimer <= 10 ? 'text-red-400 font-bold animate-pulse' : 'text-slate-100';
+  const timerColor =
+    globalTimer <= 10
+      ? 'text-red-400 font-black animate-pulse'
+      : globalTimer <= 20
+      ? 'text-amber-400 font-bold'
+      : 'text-slate-100 font-bold';
 
   return (
-    <div className="w-screen h-[100dvh] flex flex-col relative overflow-hidden bg-slate-950">
-      {/* Barra superior / HUD Flotante Integrada */}
-      <header className="absolute top-0 left-0 right-0 z-50 h-14 bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 px-3 sm:px-6 flex items-center justify-between text-white shadow-lg">
+    <div className="w-screen h-[100dvh] flex flex-col relative overflow-hidden bg-slate-950 select-none">
+      {/* Barra superior / HUD Flotante tipo Cápsula Semitransparente */}
+      <header className="absolute top-2.5 sm:top-3 left-3 right-3 sm:left-1/2 sm:-translate-x-1/2 sm:w-auto z-50 bg-slate-900/80 backdrop-blur-md border border-white/10 rounded-full px-4 py-2 flex items-center justify-between sm:space-x-6 text-white shadow-xl max-w-xl mx-auto">
+        {/* Identificador de Marca / Nivel */}
         <div className="flex items-center space-x-2">
-          <span className="text-xl">🚑</span>
-          <span className="font-bold tracking-tight text-white hidden sm:inline">
+          <span className="text-lg">🚑</span>
+          <span className="font-extrabold tracking-tight text-xs sm:text-sm text-white hidden xs:inline">
             Operación Rescate
           </span>
+          {currentLevel > 0 && currentLevel <= 4 && (
+            <span className="text-[11px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full">
+              Nivel {currentLevel}
+            </span>
+          )}
         </div>
 
-        <div className="flex items-center space-x-4 sm:space-x-6">
-          <div className="text-xs sm:text-sm font-medium text-slate-300">
-            Nivel: <span className="text-white font-bold">{currentLevel}</span>
-          </div>
+        {/* HUD Métricas (Solo visible una vez iniciada la misión) */}
+        {currentLevel > 0 && currentLevel <= 4 && (
+          <div className="flex items-center space-x-3 sm:space-x-5">
+            <div className="flex items-center space-x-1">
+              <span className="text-slate-400 text-[11px] sm:text-xs">Pts:</span>
+              <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs sm:text-sm font-bold px-2 py-0.2 rounded-full">
+                {score}
+              </span>
+            </div>
 
-          <div className="flex items-center space-x-1.5">
-            <span className="text-slate-300 text-xs sm:text-sm font-medium">Puntaje:</span>
-            <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs sm:text-sm font-bold px-2.5 py-0.5 rounded-full">
-              {score}
-            </span>
+            <div className="flex items-center space-x-1">
+              <span className="text-slate-400 text-[11px] sm:text-xs">⏱️</span>
+              <span className={`text-xs sm:text-sm font-mono tracking-wider ${timerColor}`}>
+                {globalTimer}s
+              </span>
+            </div>
           </div>
+        )}
 
-          <div className="flex items-center space-x-1.5">
-            <span className="text-slate-300 text-xs sm:text-sm font-medium">Tiempo:</span>
-            <span className={`text-xs sm:text-sm font-bold font-mono tracking-wider ${timerColor}`}>
-              {globalTimer}s
-            </span>
-          </div>
-        </div>
+        {/* Botón Toggle de Sonido (Mute / Unmute siempre visible) */}
+        <button
+          type="button"
+          onClick={toggleSound}
+          className="p-1.5 sm:px-2.5 sm:py-1 rounded-full bg-slate-800/80 hover:bg-slate-700 active:scale-90 text-white text-xs sm:text-sm transition flex items-center space-x-1 border border-slate-700/60 shadow-inner cursor-pointer"
+          title={isMuted ? 'Activar sonido' : 'Silenciar sonido'}
+        >
+          <span>{isMuted ? '🔇' : '🔊'}</span>
+          <span className="text-[10px] hidden sm:inline font-semibold">
+            {isMuted ? 'Silencio' : 'Audio'}
+          </span>
+        </button>
       </header>
 
       {/* Contenedor del Nivel (100% de la ventana) */}

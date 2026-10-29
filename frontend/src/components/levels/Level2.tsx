@@ -28,6 +28,7 @@ interface Patient {
   colorName: string;
   badgeClass: string;
   feedbackTip: string;
+  explanationMistake: string;
 }
 
 const PATIENTS: Patient[] = [
@@ -39,7 +40,8 @@ const PATIENTS: Patient[] = [
     image: patientRedImg,
     colorName: 'Rojo (Crítico)',
     badgeClass: 'bg-red-500/20 text-red-300 border-red-500/40',
-    feedbackTip: '¡Excelente! Inconsciencia y sangrado activo requieren atención crítica inmediata (Código Rojo).',
+    feedbackTip: '¡Excelente decisión clínica! Inconsciencia y sangrado masivo requieren atención crítica inmediata (Código Rojo).',
+    explanationMistake: 'Este paciente está inconsciente y con hemorragia activa: su vida corre peligro inmediato y corresponde a Código Rojo (Crítico).',
   },
   {
     id: 'patient-yellow',
@@ -50,6 +52,7 @@ const PATIENTS: Patient[] = [
     colorName: 'Amarillo (Urgente)',
     badgeClass: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
     feedbackTip: '¡Muy bien! Fracturas con dolor pero estables son urgencias que pueden esperar unos minutos (Código Amarillo).',
+    explanationMistake: 'El paciente está consciente y sus signos vitales están estables; la fractura duele pero no compromete su vida de inmediato. Corresponde a Código Amarillo (Urgente).',
   },
   {
     id: 'patient-green',
@@ -59,7 +62,8 @@ const PATIENTS: Patient[] = [
     image: patientGreenImg,
     colorName: 'Verde (Leve)',
     badgeClass: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
-    feedbackTip: '¡Correcto! El paciente camina y está alerta; está fuera de peligro inmediato (Código Verde).',
+    feedbackTip: '¡Correcto! El paciente deambula y está alerta; está fuera de peligro inmediato (Código Verde).',
+    explanationMistake: 'El perro deambula por sí mismo sin hemorragia ni dificultad respiratoria; sus lesiones son leves y corresponden a Código Verde.',
   },
 ];
 
@@ -278,7 +282,11 @@ export const Level2: React.FC = () => {
   const [assignedPatients, setAssignedPatients] = useState<Record<string, string>>({});
   const [activeId, setActiveId] = useState<string | null>(null);
   const [errorPatientId, setErrorPatientId] = useState<string | null>(null);
-  const [feedbackToast, setFeedbackToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [feedbackToast, setFeedbackToast] = useState<{
+    title: string;
+    message: string;
+    type: 'success' | 'error';
+  } | null>(null);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
 
   const triggerVibration = (pattern: number | number[] = 40) => {
@@ -312,6 +320,7 @@ export const Level2: React.FC = () => {
       addScore(100);
 
       setFeedbackToast({
+        title: '¡Felicitación Médica!',
         message: patient.feedbackTip,
         type: 'success',
       });
@@ -323,21 +332,23 @@ export const Level2: React.FC = () => {
       if (Object.keys(nextAssigned).length === PATIENTS.length) {
         setTimeout(() => {
           setIsCompleted(true);
-        }, 600);
+        }, 500);
       }
     } else {
-      triggerVibration([60, 40, 60]);
+      triggerVibration([50, 30, 50]);
       playErrorBuzzer();
-      deductTime(5);
+      // Pequeña penalización pedagógica sin frustrar al jugador
+      deductTime(3);
       setErrorPatientId(patientId);
       setFeedbackToast({
-        message: '¡Clasificación incorrecta! Penalización: -5 segundos. Evalúa signos vitales.',
+        title: 'Orientación Pedagógica de Triage',
+        message: patient.explanationMistake,
         type: 'error',
       });
 
       setTimeout(() => {
         setErrorPatientId(null);
-      }, 1500);
+      }, 2000);
     }
   };
 
@@ -383,30 +394,51 @@ export const Level2: React.FC = () => {
         {/* Capa de oscurecimiento suave */}
         <div className="absolute inset-0 bg-slate-950/50 pointer-events-none" />
 
-        {/* Modal de Éxito al Completar */}
-        {isCompleted && (
-          <div className="absolute inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-emerald-500/50 rounded-2xl p-6 max-w-md w-full text-center space-y-4 shadow-2xl animate-fade-in">
-              <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-3xl border border-emerald-500/40">
-                ✓
-              </div>
-              <h2 className="text-2xl font-bold text-white tracking-tight">
-                ¡Triage Completado!
-              </h2>
-              <p className="text-slate-200 text-sm leading-relaxed">
-                Has clasificado con éxito a los 3 pacientes según el código START y el protocolo
-                PASR. Salvaste minutos críticos para su atención veterinaria.
-              </p>
-              <button
-                type="button"
-                onClick={() => nextLevel()}
-                className="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold py-3 px-6 rounded-xl transition duration-150 shadow-md cursor-pointer"
+        {/* Modal de Transición Victoriosa al Completar 3/3 */}
+        <AnimatePresence>
+          {isCompleted && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4"
+            >
+              <motion.div
+                initial={{ scale: 0.85, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                transition={{ type: 'spring', damping: 20 }}
+                className="bg-slate-900 border-2 border-emerald-500/60 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center space-y-4 shadow-2xl ring-4 ring-emerald-500/20"
               >
-                Avanzar al Siguiente Nivel
-              </button>
-            </div>
-          </div>
-        )}
+                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-3xl sm:text-4xl border-2 border-emerald-400/50 shadow-lg shadow-emerald-500/30 animate-bounce">
+                  🌟
+                </div>
+                <div>
+                  <span className="inline-block px-3 py-1 bg-emerald-500/20 border border-emerald-500/40 rounded-full text-emerald-300 text-xs font-bold uppercase tracking-wider mb-1">
+                    ¡Triage 3/3 Completado!
+                  </span>
+                  <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                    ¡Triage Superado con Éxito!
+                  </h2>
+                </div>
+                <p className="text-slate-200 text-xs sm:text-sm leading-relaxed">
+                  Has clasificado correctamente a los 3 pacientes caninos según la prioridad vital del protocolo START. Salvaste minutos vitales para su atención especializada.
+                </p>
+                <div className="bg-slate-950/80 rounded-xl p-2.5 border border-slate-800 text-emerald-300 text-xs font-semibold flex items-center justify-center space-x-2">
+                  <span>+300 Puntos Totales</span>
+                  <span>•</span>
+                  <span>Evaluación Primaria Desbloqueada</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => nextLevel()}
+                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-white font-extrabold py-3.5 px-6 rounded-xl transition duration-150 shadow-lg shadow-emerald-500/30 cursor-pointer text-sm sm:text-base border border-emerald-400/40"
+                >
+                  Continuar a Fase 3: Evaluación ABCDE →
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Bahías de Triage (Parte Superior Fija y Ampliada) */}
         <div className="relative z-20 w-full max-w-4xl mx-auto space-y-2.5">
@@ -447,23 +479,33 @@ export const Level2: React.FC = () => {
           </div>
         </div>
 
-        {/* Zona Central: Feedback Pedagógico (Toast) */}
-        <div className="relative z-20 w-full max-w-lg mx-auto min-h-[38px] flex items-center justify-center">
+        {/* Zona Central: Banner Flotante de Feedback Pedagógico */}
+        <div className="relative z-20 w-full max-w-lg mx-auto min-h-[48px] flex items-center justify-center">
           <AnimatePresence mode="wait">
             {feedbackToast && (
               <motion.div
                 key={feedbackToast.message}
-                initial={{ opacity: 0, y: -6, scale: 0.96 }}
+                initial={{ opacity: 0, y: -8, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -4, scale: 0.96 }}
-                className={`w-full py-2 px-3.5 rounded-xl text-center text-xs sm:text-sm font-semibold border shadow-xl ${
+                exit={{ opacity: 0, y: -6, scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+                className={`w-full py-2.5 px-4 rounded-xl text-left border shadow-2xl flex items-start space-x-3 ${
                   feedbackToast.type === 'success'
-                    ? 'bg-emerald-950/95 text-emerald-200 border-emerald-500/60'
-                    : 'bg-red-950/95 text-red-200 border-red-500/60'
+                    ? 'bg-slate-900/95 border-emerald-500/70 shadow-emerald-500/10 text-emerald-100 ring-1 ring-emerald-400/30'
+                    : 'bg-slate-900/95 border-amber-500/70 shadow-amber-500/10 text-amber-100 ring-1 ring-amber-400/30'
                 }`}
               >
-                {feedbackToast.type === 'success' ? '💡 ' : '⚠️ '}
-                {feedbackToast.message}
+                <span className="text-xl flex-shrink-0 mt-0.5">
+                  {feedbackToast.type === 'success' ? '🩺' : '💡'}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className={`text-xs font-bold ${feedbackToast.type === 'success' ? 'text-emerald-400' : 'text-amber-300'}`}>
+                    {feedbackToast.title}
+                  </p>
+                  <p className="text-[11px] sm:text-xs text-slate-200 mt-0.5 leading-snug">
+                    {feedbackToast.message}
+                  </p>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

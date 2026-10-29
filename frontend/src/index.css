@@ -10,4 +10,10 @@ body,
   margin: 0;
   padding: 0;
   overflow: hidden;
+  touch-action: manipulation;
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
+

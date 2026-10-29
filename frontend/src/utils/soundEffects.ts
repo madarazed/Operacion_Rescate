@@ -1,7 +1,16 @@
 let audioCtx: AudioContext | null = null;
+let isMuted = false;
+
+export function setSoundMuted(muted: boolean): void {
+  isMuted = muted;
+}
+
+export function getIsSoundMuted(): boolean {
+  return isMuted;
+}
 
 function getAudioContext(): AudioContext | null {
-  if (typeof window === 'undefined') return null;
+  if (isMuted || typeof window === 'undefined') return null;
   if (!audioCtx) {
     const AudioContextClass =
       window.AudioContext ||
@@ -20,6 +29,7 @@ function getAudioContext(): AudioContext | null {
  * Tono DTMF corto para el marcado de emergencia en Nivel 1.
  */
 export function playDialTone(freq: number = 697): void {
+  if (isMuted) return;
   const ctx = getAudioContext();
   if (!ctx) return;
 
@@ -43,6 +53,7 @@ export function playDialTone(freq: number = 697): void {
  * Acorde suave ascendente para clasificación correcta en Triage (Nivel 2) y curaciones (Nivel 4).
  */
 export function playSuccessDrop(): void {
+  if (isMuted) return;
   const ctx = getAudioContext();
   if (!ctx) return;
 
@@ -70,6 +81,7 @@ export function playSuccessDrop(): void {
  * Tono grave de advertencia para penalizaciones por error.
  */
 export function playErrorBuzzer(): void {
+  if (isMuted) return;
   const ctx = getAudioContext();
   if (!ctx) return;
 
@@ -94,6 +106,7 @@ export function playErrorBuzzer(): void {
  * Doble pulso grave sutil para auscultación/revisión de pulso en Nivel 3 (lub-dub cardíaco).
  */
 export function playHeartbeat(): void {
+  if (isMuted) return;
   const ctx = getAudioContext();
   if (!ctx) return;
 
@@ -122,6 +135,7 @@ export function playHeartbeat(): void {
  * Secuencia melódica de triunfo al completar el juego.
  */
 export function playVictoryFanfare(): void {
+  if (isMuted) return;
   const ctx = getAudioContext();
   if (!ctx) return;
 

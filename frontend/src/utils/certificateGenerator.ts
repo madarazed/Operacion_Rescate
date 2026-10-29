@@ -81,14 +81,14 @@ export function downloadRescueCertificate(
   ctx.fillText('MISIÓN RESCATE VETERINARIO • PROTOCOLO PASR', centerX, topY + 80);
 
   // Título Principal
-  ctx.font = 'bold 54px serif';
+  ctx.font = 'bold 52px serif';
   ctx.fillStyle = '#0f172a'; // slate-900
-  ctx.fillText('CERTIFICADO DE RESCATISTA VETERINARIO', centerX, topY + 150);
+  ctx.fillText('CERTIFICADO DE RESCATISTA CANINO OFICIAL', centerX, topY + 150);
 
   // Mención de Honor
-  ctx.font = '600 24px sans-serif';
+  ctx.font = 'bold 24px sans-serif';
   ctx.fillStyle = '#d97706'; // oro
-  ctx.fillText('PRIMER RESPONDIENTE EN URGENCIAS ANIMALES', centerX, topY + 195);
+  ctx.fillText('RESCATISTA CANINO OFICIAL • PRIMER RESPONDIENTE', centerX, topY + 195);
 
   // Línea dorada divisoria
   ctx.beginPath();

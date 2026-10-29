@@ -12,12 +12,15 @@ export interface GameState {
   playerData: PlayerData;
   isGameOver: boolean;
   gameOverReason: string;
+  isMuted: boolean;
   actions: {
     nextLevel: () => void;
     addScore: (points: number) => void;
     deductTime: (seconds: number) => void;
     triggerGameOver: (reason: string) => void;
     resetGame: () => void;
+    toggleSound: () => void;
+    startGame: () => void;
   };
 }
 
