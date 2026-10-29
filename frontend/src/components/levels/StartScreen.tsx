@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useGameStore } from '../../store/gameStore';
-import coverBg from '../../assets/backgrounds/cover-rescate.png';
 
 export const StartScreen: React.FC = () => {
   const startGame = useGameStore((state) => state.actions.startGame);
@@ -17,8 +16,13 @@ export const StartScreen: React.FC = () => {
 
   return (
     <div
-      className="bg-cover bg-[center_bottom_35%] md:bg-center h-[100dvh] w-full relative overflow-hidden flex flex-col justify-between p-4 sm:p-6 select-none bg-no-repeat"
-      style={{ backgroundImage: `url(${coverBg})` }}
+      className="h-[100dvh] w-full relative overflow-hidden flex flex-col justify-between p-4 sm:p-6 select-none"
+      style={{
+        backgroundImage: "url('/images/cover-rescate.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
     >
       {/* Overlay oscuro difuminado para que la interfaz resalte y el fondo respire de manera natural */}
       <div className="absolute inset-0 bg-slate-950/25 bg-gradient-to-b from-slate-950/40 via-transparent to-slate-950/70 pointer-events-none" />
