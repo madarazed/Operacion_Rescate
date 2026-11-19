@@ -8,12 +8,15 @@ export const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
   const globalTimer = useGameStore((state) => state.globalTimer);
   const isGameOver = useGameStore((state) => state.isGameOver);
   const currentLevel = useGameStore((state) => state.currentLevel);
+  const isVictory = useGameStore((state) => state.isVictory);
   const isMuted = useGameStore((state) => state.isMuted);
   const isRelaxedMode = useGameStore((state) => state.isRelaxedMode);
   const isPracticeMode = useGameStore((state) => state.isPracticeMode);
   const lastTimeBonus = useGameStore((state) => state.lastTimeBonus);
   const deductTime = useGameStore((state) => state.actions.deductTime);
   const toggleSound = useGameStore((state) => state.actions.toggleSound);
+
+  const showVictory = Boolean(isVictory || currentLevel >= 5);
 
   const [showBonus, setShowBonus] = useState(false);
 
@@ -27,15 +30,15 @@ export const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
   }, [lastTimeBonus]);
 
   useEffect(() => {
-    // No descontar tiempo en la pantalla de inicio, juego terminado, modo relajado o si se agotó el tiempo
-    if (isGameOver || currentLevel === 0 || isRelaxedMode || globalTimer <= 0) return;
+    // No descontar tiempo en la pantalla de inicio, juego terminado, victoria, modo relajado o si se agotó el tiempo
+    if (isGameOver || currentLevel === 0 || showVictory || isRelaxedMode || globalTimer <= 0) return;
 
     const interval = setInterval(() => {
       deductTime(1);
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isGameOver, currentLevel, isRelaxedMode, globalTimer, deductTime]);
+  }, [isGameOver, currentLevel, showVictory, isRelaxedMode, globalTimer, deductTime]);
 
   const minutes = Math.floor(globalTimer / 60);
   const seconds = globalTimer % 60;
@@ -51,7 +54,7 @@ export const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
   return (
     <div className="w-screen h-[100dvh] flex flex-col relative overflow-hidden bg-slate-950 select-none">
       {/* Botón circular discreto de audio para pantallas sin HUD (Portada y Victoria) */}
-      {(currentLevel === 0 || currentLevel > 4) && (
+      {(currentLevel === 0 || showVictory) && (
         <button
           type="button"
           onClick={toggleSound}
@@ -64,7 +67,7 @@ export const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
       )}
 
       {/* Barra superior / HUD Flotante tipo Cápsula Semitransparente (SOLO en niveles jugables 1 a 4) */}
-      {currentLevel > 0 && currentLevel <= 4 && (
+      {currentLevel > 0 && currentLevel <= 4 && !showVictory && (
         <header className="absolute top-2.5 sm:top-3 left-3 right-3 sm:left-1/2 sm:-translate-x-1/2 sm:w-auto z-50 bg-slate-900/80 backdrop-blur-md border border-white/10 rounded-full px-4 py-2 flex items-center justify-between sm:space-x-6 text-white shadow-xl max-w-xl mx-auto">
           {/* Identificador de Marca / Nivel */}
           <div className="flex items-center space-x-2">

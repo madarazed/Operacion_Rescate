@@ -8,6 +8,7 @@ export const useGameStore = create<GameState>((set) => ({
   globalTimer: 120,
   isRelaxedMode: false,
   isPracticeMode: false,
+  isVictory: false,
   lastTimeBonus: null,
   playerData: { id: null, name: '' },
   isGameOver: false,
@@ -17,6 +18,7 @@ export const useGameStore = create<GameState>((set) => ({
     startGame: () =>
       set((state) => ({
         currentLevel: 1,
+        isVictory: false,
         score: 0,
         globalTimer: 120,
         isPracticeMode: false,
@@ -26,9 +28,39 @@ export const useGameStore = create<GameState>((set) => ({
         isRelaxedMode: state.isRelaxedMode,
       })),
     nextLevel: () =>
-      set((state) => ({
-        currentLevel: state.currentLevel + 1,
+      set((state) => {
+        const next = state.currentLevel + 1;
+        return {
+          currentLevel: next,
+          isVictory: next >= 5,
+        };
+      }),
+    finishMission: () =>
+      set(() => ({
+        currentLevel: 5,
+        isVictory: true,
+        isGameOver: false,
+        gameOverReason: '',
       })),
+    completeGame: () =>
+      set(() => ({
+        currentLevel: 5,
+        isVictory: true,
+        isGameOver: false,
+        gameOverReason: '',
+      })),
+    setGameState: (gameState: string) =>
+      set(() => {
+        if (gameState === 'victory') {
+          return {
+            currentLevel: 5,
+            isVictory: true,
+            isGameOver: false,
+            gameOverReason: '',
+          };
+        }
+        return {};
+      }),
     addScore: (points: number) =>
       set((state) => ({
         score: state.score + points,
@@ -72,6 +104,7 @@ export const useGameStore = create<GameState>((set) => ({
     resetGame: () =>
       set((state) => ({
         currentLevel: 0,
+        isVictory: false,
         score: 0,
         globalTimer: 120,
         isPracticeMode: false,

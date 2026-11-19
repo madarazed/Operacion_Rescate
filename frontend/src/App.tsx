@@ -10,9 +10,12 @@ import { VictoryScreen } from './components/levels/VictoryScreen';
 
 export const App: React.FC = () => {
   const currentLevel = useGameStore((state) => state.currentLevel);
+  const isVictory = useGameStore((state) => state.isVictory);
   const isGameOver = useGameStore((state) => state.isGameOver);
   const gameOverReason = useGameStore((state) => state.gameOverReason);
   const resetGame = useGameStore((state) => state.actions.resetGame);
+
+  const showVictory = Boolean(isVictory || currentLevel >= 5);
 
   return (
     <>
@@ -50,12 +53,12 @@ export const App: React.FC = () => {
 
       {/* Renderizado condicional por nivel dentro de GameLayout */}
       <GameLayout>
-        {currentLevel === 0 && <StartScreen />}
-        {currentLevel === 1 && <Level1 />}
-        {currentLevel === 2 && <Level2 />}
-        {currentLevel === 3 && <Level3 />}
-        {currentLevel === 4 && <Level4 />}
-        {currentLevel > 4 && <VictoryScreen />}
+        {currentLevel === 0 && !showVictory && <StartScreen />}
+        {currentLevel === 1 && !showVictory && <Level1 />}
+        {currentLevel === 2 && !showVictory && <Level2 />}
+        {currentLevel === 3 && !showVictory && <Level3 />}
+        {currentLevel === 4 && !showVictory && <Level4 />}
+        {showVictory && <VictoryScreen />}
       </GameLayout>
     </>
   );

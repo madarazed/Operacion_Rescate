@@ -21,6 +21,9 @@ export const Level4: React.FC = () => {
   const addScore = useGameStore((state) => state.actions.addScore);
   const addTime = useGameStore((state) => state.actions.addTime);
   const deductTime = useGameStore((state) => state.actions.deductTime);
+  const finishMission = useGameStore((state) => state.actions.finishMission);
+  const completeGame = useGameStore((state) => state.actions.completeGame);
+  const setGameState = useGameStore((state) => state.actions.setGameState);
   const nextLevel = useGameStore((state) => state.actions.nextLevel);
 
   const [step, setStep] = useState<ClinicalStep>('INITIAL');
@@ -33,6 +36,26 @@ export const Level4: React.FC = () => {
       navigator?.vibrate?.(pattern);
     } catch {
       // Ignore vibration error on unsupported platforms
+    }
+  };
+
+  // Acción directa para avanzar a VictoryScreen sin depender de números de nivel frágiles
+  const handleFinishMission = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    triggerVibration([40, 30, 60]);
+    playSuccessDrop();
+
+    if (finishMission) {
+      finishMission();
+    } else if (completeGame) {
+      completeGame();
+    } else if (setGameState) {
+      setGameState('victory');
+    } else {
+      nextLevel();
     }
   };
 
@@ -61,6 +84,7 @@ export const Level4: React.FC = () => {
 
   // Etapa 2 - Opción A (Error): Retirar la gasa empapada
   const handleOptionRetirarGasa = () => {
+    if (step === 'BANDAGED') return;
     triggerVibration([60, 40, 60]);
     playErrorBuzzer();
     deductTime(10);
@@ -88,23 +112,27 @@ export const Level4: React.FC = () => {
     setStep('SECOND_GAUZE');
   };
 
-  // Etapa 3: Aplicación del vendaje elástico compresivo
+  // Etapa 3: Aplicación del vendaje elástico compresivo (100% Hemostasia)
   const handleApplyBandage = () => {
     if (step !== 'SECOND_GAUZE') return;
     triggerVibration([40, 30, 60]);
     playSuccessDrop();
     addScore(100);
     addTime(15);
+    // Limpieza de cualquier advertencia de error previa
+    setShakeError(false);
+    setShakeAntiseptic(false);
     setStep('BANDAGED');
     setFeedback({
       type: 'success',
       message:
-        '¡Vendaje compresivo completado! Apósitos fijados con tensión uniforme y perfusión distal preservada.',
+        '¡Vendaje compresivo completado con éxito! 100% Hemostasia lograda, coágulo protegido y signos estables.',
     });
   };
 
-  // Distractor Pedagógico: Antiséptico / Suero
+  // Distractor Pedagógico: Antiséptico / Suero (Deshabilitado totalmente al alcanzar el 100%)
   const handleSelectAntiseptic = () => {
+    if (step === 'BANDAGED') return; // Deshabilitado en 100%
     triggerVibration([60, 40, 60]);
     playErrorBuzzer();
     deductTime(5);
@@ -178,22 +206,22 @@ export const Level4: React.FC = () => {
       {/* Capa de oscurecimiento ambiental táctico */}
       <div className="absolute inset-0 bg-gradient-to-r from-slate-950/92 via-slate-950/65 to-slate-950/85 pointer-events-none" />
 
-      {/* PANEL CLÍNICO (Izquierda en PC, Arriba en móvil) */}
-      <div className="order-2 lg:order-1 relative z-20 w-full lg:w-[430px] xl:w-[460px] max-w-md flex-shrink-0 flex flex-col justify-between space-y-2 bg-slate-900/90 text-white backdrop-blur-xl rounded-2xl border border-teal-500/30 p-3 sm:p-4 shadow-2xl">
-        <div className="space-y-2">
+      {/* PANEL CLÍNICO: Arriba en móvil (order-1) e izquierda en PC (lg:order-1) */}
+      <div className="order-1 lg:order-1 relative z-30 w-full lg:w-[430px] xl:w-[460px] max-w-md flex-shrink-0 flex flex-col justify-between space-y-1.5 sm:space-y-2 bg-slate-900/90 text-white backdrop-blur-xl rounded-2xl border border-teal-500/30 p-2.5 sm:p-4 shadow-2xl">
+        <div className="space-y-1.5 sm:space-y-2">
           {/* Cabecera temática */}
           <div className="flex items-center justify-between">
             <div>
               <span className="inline-block bg-red-500/20 text-red-300 border border-red-500/30 text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                 Fase 4: Socorrer (Hemostasia)
               </span>
-              <h2 className="text-base sm:text-lg font-black text-white tracking-tight mt-0.5">
+              <h2 className="text-sm sm:text-lg font-black text-white tracking-tight mt-0.5">
                 Control de Sangrado
               </h2>
             </div>
 
             <span
-              className={`text-[10px] sm:text-xs font-black px-2.5 py-1 rounded-full border ${hemostasis.badgeBg} flex items-center gap-1`}
+              className={`text-[9px] sm:text-xs font-black px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border ${hemostasis.badgeBg} flex items-center gap-1`}
             >
               <span>{hemostasis.icon}</span>
               <span>{hemostasis.label}</span>
@@ -201,8 +229,8 @@ export const Level4: React.FC = () => {
           </div>
 
           {/* BARRA DE ESTADO HEMODINÁMICO / CONTROL DE SANGRADO */}
-          <div className="bg-slate-950/90 rounded-xl p-2.5 border border-slate-800 space-y-1 shadow-inner">
-            <div className="flex items-center justify-between text-[11px]">
+          <div className="bg-slate-950/90 rounded-xl p-2 sm:p-2.5 border border-slate-800 space-y-1 shadow-inner">
+            <div className="flex items-center justify-between text-[10px] sm:text-[11px]">
               <span className="font-bold text-slate-300 flex items-center gap-1">
                 <span>🩸</span> Control Hemodinámico
               </span>
@@ -212,7 +240,7 @@ export const Level4: React.FC = () => {
             </div>
 
             {/* Pista de la barra */}
-            <div className="w-full h-2.5 sm:h-3 bg-slate-900 rounded-full border border-slate-700/80 p-0.5 overflow-hidden">
+            <div className="w-full h-2 sm:h-2.5 bg-slate-900 rounded-full border border-slate-700/80 p-0.5 overflow-hidden">
               <motion.div
                 className={`h-full rounded-full bg-gradient-to-r ${hemostasis.barGradient}`}
                 initial={{ width: 0 }}
@@ -221,63 +249,65 @@ export const Level4: React.FC = () => {
               />
             </div>
 
-            <div className="flex justify-between text-[9px] font-semibold text-slate-400">
-              <span className={hemostasis.percent >= 0 ? 'text-red-400' : ''}>0% Sangrado</span>
-              <span className={hemostasis.percent >= 75 ? 'text-amber-400' : ''}>50% Coágulo</span>
-              <span className={hemostasis.percent === 100 ? 'text-emerald-400' : ''}>100% Hemostasia</span>
+            <div className="flex justify-between text-[8px] sm:text-[9px] font-semibold text-slate-400">
+              <span className={hemostasis.percent >= 0 ? 'text-red-400 font-bold' : ''}>0% Sangrado</span>
+              <span className={hemostasis.percent >= 75 ? 'text-amber-400 font-bold' : ''}>50% Coágulo</span>
+              <span className={hemostasis.percent === 100 ? 'text-emerald-400 font-black' : ''}>100% Hemostasia</span>
             </div>
           </div>
 
           {/* BANDEJA DE INSUMOS MÉDICOS (3 INSUMOS ESTÉRILES LIMPIOS) */}
-          <div className="bg-slate-950/90 rounded-xl p-2 border border-slate-800 space-y-1.5">
+          <div className="bg-slate-950/90 rounded-xl p-1.5 sm:p-2 border border-slate-800 space-y-1">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-black tracking-wider uppercase text-teal-400 flex items-center gap-1">
+              <span className="text-[9px] sm:text-[10px] font-black tracking-wider uppercase text-teal-400 flex items-center gap-1">
                 <img src={firstAidKitImg} alt="Botiquín" className="w-3.5 h-3.5 object-contain" />
                 Bandeja de Insumos Médicos
               </span>
-              <span className="text-[9px] text-slate-400 font-medium">Insumos Estériles</span>
+              <span className="text-[8px] sm:text-[9px] text-slate-400 font-medium">Insumos Estériles</span>
             </div>
 
-            <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+            <div className="grid grid-cols-3 gap-1 sm:gap-2">
               {/* Insumo 1: Gasa Estéril */}
-              <motion.button
+              <button
                 type="button"
+                disabled={step === 'BANDAGED'}
                 onClick={() => {
                   if (step === 'INITIAL') handleApplyFirstGauze();
                   else if (step === 'SATURATED') handleOptionSuperponerGasa();
                 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.97 }}
-                className={`flex flex-col items-center justify-between p-1.5 sm:p-2 rounded-xl border text-center transition-all cursor-pointer ${
-                  step === 'INITIAL'
-                    ? 'bg-blue-950/60 border-blue-400 text-blue-200 ring-2 ring-blue-400/50 animate-pulse shadow-[0_0_15px_rgba(59,130,246,0.3)]'
+                className={`flex flex-col items-center justify-between p-1 sm:p-1.5 rounded-xl border text-center transition-all ${
+                  step === 'BANDAGED'
+                    ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300 opacity-80 cursor-default'
+                    : step === 'INITIAL'
+                    ? 'bg-blue-950/60 border-blue-400 text-blue-200 ring-2 ring-blue-400/50 animate-pulse shadow-[0_0_15px_rgba(59,130,246,0.3)] cursor-pointer'
                     : step === 'SATURATED'
-                    ? 'bg-amber-950/50 border-amber-400 text-amber-200 ring-1 ring-amber-400 animate-pulse'
-                    : step === 'SECOND_GAUZE' || step === 'BANDAGED'
-                    ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300'
-                    : 'bg-slate-900/60 border-slate-800 text-slate-300'
+                    ? 'bg-amber-950/50 border-amber-400 text-amber-200 ring-1 ring-amber-400 animate-pulse cursor-pointer'
+                    : step === 'SECOND_GAUZE'
+                    ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300 cursor-default'
+                    : 'bg-slate-900/60 border-slate-800 text-slate-300 cursor-pointer'
                 }`}
               >
                 <div className="relative">
-                  <img src={gauzeCleanImg} alt="Gasa Estéril" className="w-7 h-7 sm:w-9 sm:h-9 object-contain mb-0.5" />
+                  <img src={gauzeCleanImg} alt="Gasa Estéril" className="w-6 h-6 sm:w-8 sm:h-8 object-contain mb-0.5" />
                   {(step === 'SECOND_GAUZE' || step === 'BANDAGED') && (
-                    <span className="absolute -top-1 -right-1 bg-emerald-500 text-slate-950 text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 bg-emerald-500 text-slate-950 text-[8px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center">
                       ✓
                     </span>
                   )}
                 </div>
-                <span className="text-[10px] sm:text-[11px] font-black leading-tight">🩹 Gasa Estéril</span>
-                <span className="text-[8px] text-slate-400">Compresión</span>
-              </motion.button>
+                <span className="text-[9px] sm:text-[10px] font-black leading-tight">🩹 Gasa Estéril</span>
+                <span className="text-[7px] sm:text-[8px] text-slate-400">Compresión</span>
+              </button>
 
               {/* Insumo 2: Venda Elástica */}
-              <motion.button
+              <button
                 type="button"
+                disabled={step === 'BANDAGED'}
                 onClick={() => {
                   if (step === 'SECOND_GAUZE') {
                     handleApplyBandage();
                   } else if (step === 'BANDAGED') {
-                    // Ya aplicada
+                    // Ya asegurada
                   } else {
                     triggerVibration([60, 40, 60]);
                     playErrorBuzzer();
@@ -288,48 +318,49 @@ export const Level4: React.FC = () => {
                     });
                   }
                 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.97 }}
-                className={`flex flex-col items-center justify-between p-1.5 sm:p-2 rounded-xl border text-center transition-all cursor-pointer ${
-                  step === 'SECOND_GAUZE'
-                    ? 'bg-emerald-950/70 border-emerald-400 text-emerald-200 ring-2 ring-emerald-400/60 animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.35)]'
-                    : step === 'BANDAGED'
-                    ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300'
-                    : 'bg-slate-900/40 border-slate-800 text-slate-400 opacity-70'
+                className={`flex flex-col items-center justify-between p-1 sm:p-1.5 rounded-xl border text-center transition-all ${
+                  step === 'BANDAGED'
+                    ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300 opacity-80 cursor-default'
+                    : step === 'SECOND_GAUZE'
+                    ? 'bg-emerald-950/70 border-emerald-400 text-emerald-200 ring-2 ring-emerald-400/60 animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.35)] cursor-pointer'
+                    : 'bg-slate-900/40 border-slate-800 text-slate-400 opacity-70 cursor-pointer'
                 }`}
               >
                 <div className="relative">
-                  <img src={bandageRollImg} alt="Venda Elástica" className="w-7 h-7 sm:w-9 sm:h-9 object-contain mb-0.5" />
+                  <img src={bandageRollImg} alt="Venda Elástica" className="w-6 h-6 sm:w-8 sm:h-8 object-contain mb-0.5" />
                   {step === 'BANDAGED' && (
-                    <span className="absolute -top-1 -right-1 bg-emerald-500 text-slate-950 text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 bg-emerald-500 text-slate-950 text-[8px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center">
                       ✓
                     </span>
                   )}
                 </div>
-                <span className="text-[10px] sm:text-[11px] font-black leading-tight">🎗️ Venda Elástica</span>
-                <span className="text-[8px] text-slate-400">Fijación</span>
-              </motion.button>
+                <span className="text-[9px] sm:text-[10px] font-black leading-tight">🎗️ Venda Elástica</span>
+                <span className="text-[7px] sm:text-[8px] text-slate-400">Fijación</span>
+              </button>
 
-              {/* Insumo 3: Antiséptico / Suero (Distractor Pedagógico) */}
+              {/* Insumo 3: Antiséptico / Suero (Distractor deshabilitado al 100%) */}
               <motion.button
                 type="button"
+                disabled={step === 'BANDAGED'}
                 onClick={handleSelectAntiseptic}
                 animate={shakeAntiseptic ? { x: [-8, 8, -6, 6, -3, 3, 0] } : {}}
                 transition={{ duration: 0.4 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.97 }}
-                className="flex flex-col items-center justify-between p-1.5 sm:p-2 rounded-xl border border-cyan-800/40 bg-slate-900/50 text-cyan-200 text-center hover:border-cyan-600/60 transition-all cursor-pointer"
-                title="Antiséptico / Solución Salina"
+                className={`flex flex-col items-center justify-between p-1 sm:p-1.5 rounded-xl border text-center transition-all ${
+                  step === 'BANDAGED'
+                    ? 'border-slate-800 bg-slate-950/50 text-slate-500 opacity-40 cursor-not-allowed'
+                    : 'border-cyan-800/40 bg-slate-900/50 text-cyan-200 hover:border-cyan-600/60 cursor-pointer'
+                }`}
+                title={step === 'BANDAGED' ? 'Insumo no requerido tras vendaje' : 'Antiséptico / Solución Salina'}
               >
-                <div className="w-7 h-7 sm:w-9 sm:h-9 flex items-center justify-center mb-0.5 text-cyan-400">
-                  <svg className="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center mb-0.5 text-cyan-400">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                     <path d="M10 2h4M9 5h6M7 8h10v12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V8z" />
                     <path d="M12 11v6M9 14h6" strokeWidth="2" strokeLinecap="round" />
                     <circle cx="12" cy="5" r="1" fill="currentColor" />
                   </svg>
                 </div>
-                <span className="text-[10px] sm:text-[11px] font-black leading-tight">🧴 Antiséptico</span>
-                <span className="text-[8px] text-slate-400">Lavado / Suero</span>
+                <span className="text-[9px] sm:text-[10px] font-black leading-tight">🧴 Antiséptico</span>
+                <span className="text-[7px] sm:text-[8px] text-slate-400">Lavado / Suero</span>
               </motion.button>
             </div>
           </div>
@@ -338,10 +369,10 @@ export const Level4: React.FC = () => {
           <AnimatePresence>
             {feedback && (
               <motion.div
-                initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                initial={{ opacity: 0, y: -4, scale: 0.97 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -4, scale: 0.97 }}
-                className={`p-2 sm:p-2.5 rounded-xl border text-xs shadow-lg flex items-start space-x-2 ${
+                exit={{ opacity: 0, y: -3, scale: 0.97 }}
+                className={`p-2 rounded-xl border text-[11px] sm:text-xs shadow-lg flex items-start space-x-2 ${
                   feedback.type === 'error'
                     ? 'bg-red-950/95 border-red-500 text-red-200'
                     : feedback.type === 'warning'
@@ -351,7 +382,7 @@ export const Level4: React.FC = () => {
                     : 'bg-cyan-950/95 border-cyan-500 text-cyan-200'
                 }`}
               >
-                <span className="text-base flex-shrink-0">
+                <span className="text-sm sm:text-base flex-shrink-0">
                   {feedback.type === 'error'
                     ? '⚠️'
                     : feedback.type === 'warning'
@@ -366,18 +397,16 @@ export const Level4: React.FC = () => {
           </AnimatePresence>
 
           {/* CONSOLA DE DECISIONES Y ACCIONES SECUENCIALES */}
-          <div className="pt-0.5">
+          <div>
             {step === 'INITIAL' && (
-              <motion.button
+              <button
                 type="button"
                 onClick={handleApplyFirstGauze}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-extrabold py-2.5 px-3 rounded-xl transition shadow-lg flex items-center justify-center space-x-2 text-xs sm:text-sm cursor-pointer border border-blue-400/50"
+                className="w-full bg-blue-600 hover:bg-blue-500 active:scale-98 text-white font-extrabold py-2 px-3 rounded-xl transition shadow-lg flex items-center justify-center space-x-2 text-xs sm:text-sm cursor-pointer border border-blue-400/50"
               >
                 <span>🩹</span>
                 <span>Aplicar Gasa Estéril (Presión Directa)</span>
-              </motion.button>
+              </button>
             )}
 
             {step === 'COMPRESSING' && (
@@ -393,60 +422,54 @@ export const Level4: React.FC = () => {
                 transition={{ duration: 0.4 }}
                 className="space-y-1.5"
               >
-                <p className="text-[11px] font-black text-amber-300">
+                <p className="text-[10px] sm:text-[11px] font-black text-amber-300">
                   ¿Qué decisión clínica tomas ante la gasa empapada?
                 </p>
 
                 {/* Opción A (Error pedagógico) */}
-                <motion.button
+                <button
                   type="button"
                   onClick={handleOptionRetirarGasa}
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full bg-red-950/70 hover:bg-red-900/90 text-red-200 font-semibold p-2 rounded-xl border border-red-500/60 transition text-xs text-left cursor-pointer flex items-center space-x-2"
+                  className="w-full bg-red-950/70 hover:bg-red-900/90 active:scale-98 text-red-200 font-semibold p-2 rounded-xl border border-red-500/60 transition text-xs text-left cursor-pointer flex items-center space-x-2"
                 >
-                  <span className="text-base flex-shrink-0">❌</span>
+                  <span className="text-sm flex-shrink-0">❌</span>
                   <div className="leading-tight">
-                    <p className="font-bold text-red-100">Retirar gasa empapada y poner una nueva</p>
-                    <p className="text-[9px] text-red-300">Quita el apósito saturado para cambiarlo</p>
+                    <p className="font-bold text-red-100 text-[11px]">Retirar gasa empapada y poner una nueva</p>
+                    <p className="text-[8px] sm:text-[9px] text-red-300">Quita el apósito saturado para cambiarlo</p>
                   </div>
-                </motion.button>
+                </button>
 
                 {/* Opción B (Correcta) */}
-                <motion.button
+                <button
                   type="button"
                   onClick={handleOptionSuperponerGasa}
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full bg-emerald-950/80 hover:bg-emerald-900 text-emerald-200 font-bold p-2 rounded-xl border-2 border-emerald-400 transition text-xs text-left shadow-[0_0_15px_rgba(16,185,129,0.3)] ring-1 ring-emerald-400/40 cursor-pointer flex items-center space-x-2"
+                  className="w-full bg-emerald-950/80 hover:bg-emerald-900 active:scale-98 text-emerald-200 font-bold p-2 rounded-xl border-2 border-emerald-400 transition text-xs text-left shadow-[0_0_15px_rgba(16,185,129,0.3)] ring-1 ring-emerald-400/40 cursor-pointer flex items-center space-x-2"
                 >
-                  <span className="text-base flex-shrink-0">✅</span>
+                  <span className="text-sm flex-shrink-0">✅</span>
                   <div className="leading-tight">
-                    <p className="font-black text-emerald-100">Mantener gasa y superponer segunda gasa limpia</p>
-                    <p className="text-[9px] text-emerald-300">Protege el coágulo en formación y absorbe el exceso</p>
+                    <p className="font-black text-emerald-100 text-[11px]">Mantener gasa y superponer segunda gasa limpia</p>
+                    <p className="text-[8px] sm:text-[9px] text-emerald-300">Protege el coágulo en formación y absorbe el exceso</p>
                   </div>
-                </motion.button>
+                </button>
               </motion.div>
             )}
 
             {step === 'SECOND_GAUZE' && (
-              <motion.button
+              <button
                 type="button"
                 onClick={handleApplyBandage}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black py-2.5 px-3 rounded-xl transition shadow-lg flex items-center justify-center space-x-2 text-xs sm:text-sm cursor-pointer border border-emerald-300 ring-2 ring-emerald-400/40 animate-pulse"
+                className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-98 text-white font-black py-2.5 px-3 rounded-xl transition shadow-lg flex items-center justify-center space-x-2 text-xs sm:text-sm cursor-pointer border border-emerald-300 ring-2 ring-emerald-400/40 animate-pulse"
               >
                 <span>🎗️</span>
                 <span>Aplicar Venda Elástica (Fijación Compresiva)</span>
-              </motion.button>
+              </button>
             )}
 
             {step === 'BANDAGED' && (
               <div className="bg-emerald-950/70 border border-emerald-500/80 text-emerald-200 p-2 rounded-xl text-xs flex items-center space-x-2">
-                <span className="text-base">🛡️</span>
+                <span className="text-base flex-shrink-0">🛡️</span>
                 <div>
-                  <p className="font-bold text-[11px]">¡Hemorragia controlada con éxito!</p>
+                  <p className="font-bold text-[11px]">¡Hemorragia controlada al 100%!</p>
                   <p className="text-[9px] text-slate-300">Vendaje seguro, coágulo protegido y signos estables.</p>
                 </div>
               </div>
@@ -454,19 +477,19 @@ export const Level4: React.FC = () => {
           </div>
         </div>
 
-        {/* BOTÓN FINALIZAR MISIÓN Y CERTIFICADO */}
-        <div className="pt-0.5">
+        {/* BOTÓN FINALIZAR MISIÓN Y CERTIFICADO: 100% Accesible y protegido contra bloqueos */}
+        <div className="pt-1">
           {step === 'BANDAGED' ? (
             <motion.button
               type="button"
-              onClick={nextLevel}
+              onClick={handleFinishMission}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 text-slate-950 font-black py-2.5 sm:py-3 px-4 rounded-xl transition shadow-[0_0_25px_rgba(45,212,191,0.5)] text-xs sm:text-sm flex items-center justify-center space-x-2 animate-pulse cursor-pointer border-2 border-teal-200"
+              className="relative z-40 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 hover:from-emerald-400 hover:to-teal-300 active:scale-95 text-slate-950 font-black py-2.5 sm:py-3.5 px-4 rounded-xl sm:rounded-2xl transition shadow-[0_0_30px_rgba(45,212,191,0.6)] text-xs sm:text-sm flex items-center justify-center space-x-2 animate-pulse cursor-pointer border-2 border-teal-200 pointer-events-auto"
             >
-              <span className="text-base">🎓</span>
-              <span>Finalizar Misión y Ver Certificado</span>
-              <span className="text-base">➔</span>
+              <span className="text-base sm:text-lg">🎓</span>
+              <span className="tracking-wide">Finalizar Misión y Ver Certificado</span>
+              <span className="text-base sm:text-lg">➔</span>
             </motion.button>
           ) : (
             <div className="w-full py-1.5 px-3 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-400 text-[10px] sm:text-[11px] text-center font-medium">
@@ -479,13 +502,16 @@ export const Level4: React.FC = () => {
         </div>
       </div>
 
-      {/* ESCENA DEL PACIENTE CANINO: HERIDA Y CAPAS VISUALES ANIMADAS */}
-      <div className="order-1 lg:order-2 relative z-10 flex-1 w-full flex items-center justify-center p-2 sm:p-4 max-h-[38vh] sm:max-h-[44vh] lg:max-h-full">
-        <div className="relative max-w-sm sm:max-w-md lg:max-w-xl w-full flex items-center justify-center">
-          {/* Sprite del paciente canino con animación sutil de respiración */}
+      {/* ESCENA DEL PACIENTE CANINO: Posicionado en la camilla/suelo inferior, libre de solapamientos */}
+      <div className="order-2 lg:order-2 relative z-10 flex-1 w-full flex items-end justify-center px-2 sm:px-4 pb-2 sm:pb-4 lg:pb-8 max-h-[36vh] sm:max-h-[42vh] lg:max-h-full">
+        <div className="relative max-w-sm sm:max-w-md lg:max-w-xl w-full flex items-end justify-center translate-y-3 sm:translate-y-6 lg:translate-y-8">
+          {/* Sombra de contacto sobre la camilla/suelo para descansar visualmente al paciente */}
+          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-4/5 h-6 bg-black/60 rounded-full blur-md pointer-events-none" />
+
+          {/* Sprite del paciente canino descansando sobre la superficie clínica */}
           <motion.img
             src={examineDogImg}
-            alt="Paciente Canino con hemorragia en pata posterior"
+            alt="Paciente Canino descansando sobre la camilla"
             animate={{
               y: [-2, 2, -2],
               scale: [1, 1.012, 1],
@@ -495,7 +521,7 @@ export const Level4: React.FC = () => {
               repeat: Infinity,
               ease: 'easeInOut',
             }}
-            className="w-full max-h-[220px] sm:max-h-[320px] lg:max-h-[420px] object-contain drop-shadow-2xl select-none pointer-events-none"
+            className="w-full max-h-[200px] sm:max-h-[280px] lg:max-h-[380px] object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.65)] select-none pointer-events-none"
           />
 
           {/* PUNTO ANATÓMICO: HERIDA Y CAPAS DE GASA / VENDAJE EN PATA POSTERIOR */}
@@ -505,11 +531,9 @@ export const Level4: React.FC = () => {
           >
             {/* ETAPA 1: Herida con sangrado activo */}
             {step === 'INITIAL' && (
-              <motion.button
+              <button
                 type="button"
                 onClick={handleApplyFirstGauze}
-                whileHover={{ scale: 1.15 }}
-                whileTap={{ scale: 0.95 }}
                 title="Herida con sangrado activo - Clic para aplicar gasa estéril"
                 className="relative flex items-center justify-center cursor-pointer group focus:outline-none"
               >
@@ -520,7 +544,7 @@ export const Level4: React.FC = () => {
                 <span className="absolute -bottom-7 whitespace-nowrap bg-red-950/95 text-red-200 text-[9px] font-black px-2 py-0.5 rounded-full border border-red-500 shadow">
                   Sangrado Activo
                 </span>
-              </motion.button>
+              </button>
             )}
 
             {/* ETAPA 1 EN PROGRESO: Gasa limpia ejerciendo compresión directa */}
@@ -593,29 +617,32 @@ export const Level4: React.FC = () => {
               </div>
             )}
 
-            {/* ETAPA 3: Vendaje compresivo elástico aplicado y asegurado */}
+            {/* ETAPA 3: Vendaje compresivo elástico aplicado y asegurado (Clic también lleva a victoria) */}
             {step === 'BANDAGED' && (
-              <motion.div
-                initial={{ scale: 0.5, rotate: -15, opacity: 0 }}
-                animate={{ scale: 1, rotate: 0, opacity: 1 }}
-                transition={{ type: 'spring', damping: 14 }}
-                className="relative flex flex-col items-center"
+              <motion.button
+                type="button"
+                onClick={handleFinishMission}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                title="Misión completada - Clic para ver Certificado"
+                className="relative flex flex-col items-center cursor-pointer group"
               >
                 <div className="relative w-16 h-16 flex items-center justify-center">
-                  <span className="absolute -inset-2 rounded-full bg-emerald-500/30 blur-md animate-pulse" />
+                  <span className="absolute -inset-2 rounded-full bg-emerald-500/40 blur-md animate-pulse" />
                   <img
                     src={bandageRollImg}
                     alt="Vendaje compresivo asegurado"
-                    className="w-16 h-16 object-contain drop-shadow-2xl relative"
+                    className="w-14 h-14 sm:w-16 sm:h-16 object-contain drop-shadow-2xl relative"
                   />
                   <span className="absolute -top-1 -right-1 bg-emerald-500 text-slate-950 font-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center shadow-lg border-2 border-white">
                     ✓
                   </span>
                 </div>
-                <span className="text-[9px] font-black bg-emerald-600 text-white px-2.5 py-0.5 rounded-full mt-1 shadow-lg border border-emerald-300">
-                  🛡️ Vendaje Seguro (100%)
+                <span className="text-[9px] font-black bg-emerald-600 text-white px-2.5 py-0.5 rounded-full mt-1 shadow-lg border border-emerald-300 flex items-center gap-1">
+                  <span>🛡️</span>
+                  <span>100% Vendado</span>
                 </span>
-              </motion.div>
+              </motion.button>
             )}
           </div>
         </div>
