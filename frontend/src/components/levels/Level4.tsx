@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../../store/gameStore';
 import { playSuccessDrop, playErrorBuzzer, playHeartbeat } from '../../utils/soundEffects';
+import { LevelCompleteOverlay } from '../ui/LevelCompleteOverlay';
 
 import triageBg from '../../assets/backgrounds/level2-triage-room.jpg';
 import examineDogImg from '../../assets/characters/level3-examine-dog.png';
@@ -30,6 +31,7 @@ export const Level4: React.FC = () => {
   const [feedback, setFeedback] = useState<ClinicalFeedback | null>(null);
   const [shakeError, setShakeError] = useState(false);
   const [shakeAntiseptic, setShakeAntiseptic] = useState(false);
+  const [isLevelComplete, setIsLevelComplete] = useState<boolean>(false);
 
   const triggerVibration = (pattern: number | number[] = 40) => {
     try {
@@ -128,6 +130,11 @@ export const Level4: React.FC = () => {
       message:
         '¡Vendaje compresivo completado con éxito! 100% Hemostasia lograda, coágulo protegido y signos estables.',
     });
+
+    // Despliega automáticamente el LevelCompleteOverlay con 600ms de delay
+    setTimeout(() => {
+      setIsLevelComplete(true);
+    }, 600);
   };
 
   // Distractor Pedagógico: Antiséptico / Suero (Deshabilitado totalmente al alcanzar el 100%)
@@ -477,28 +484,19 @@ export const Level4: React.FC = () => {
           </div>
         </div>
 
-        {/* BOTÓN FINALIZAR MISIÓN Y CERTIFICADO: 100% Accesible y protegido contra bloqueos */}
-        <div className="pt-1">
-          {step === 'BANDAGED' ? (
-            <motion.button
-              type="button"
-              onClick={handleFinishMission}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="relative z-40 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 hover:from-emerald-400 hover:to-teal-300 active:scale-95 text-slate-950 font-black py-2.5 sm:py-3.5 px-4 rounded-xl sm:rounded-2xl transition shadow-[0_0_30px_rgba(45,212,191,0.6)] text-xs sm:text-sm flex items-center justify-center space-x-2 animate-pulse cursor-pointer border-2 border-teal-200 pointer-events-auto"
-            >
-              <span className="text-base sm:text-lg">🎓</span>
-              <span className="tracking-wide">Finalizar Misión y Ver Certificado</span>
-              <span className="text-base sm:text-lg">➔</span>
-            </motion.button>
-          ) : (
-            <div className="w-full py-1.5 px-3 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-400 text-[10px] sm:text-[11px] text-center font-medium">
-              {step === 'INITIAL' && 'Paso 1: Aplica la gasa limpia sobre la herida sangrante'}
-              {step === 'COMPRESSING' && 'Paso 2: Ejerciendo compresión directa firme...'}
-              {step === 'SATURATED' && 'Paso 2: Decide el procedimiento ante la gasa saturada'}
-              {step === 'SECOND_GAUZE' && 'Paso 3: Aplica la venda elástica para asegurar la hemostasia'}
-            </div>
-          )}
+        {/* Estado clínico del procedimiento */}
+        <div className="pt-0.5">
+          <div className="w-full py-1.5 px-3 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-400 text-[10px] sm:text-[11px] text-center font-medium">
+            {step === 'INITIAL' && 'Paso 1: Aplica la gasa limpia sobre la herida sangrante'}
+            {step === 'COMPRESSING' && 'Paso 2: Ejerciendo compresión directa firme...'}
+            {step === 'SATURATED' && 'Paso 2: Decide el procedimiento ante la gasa saturada'}
+            {step === 'SECOND_GAUZE' && 'Paso 3: Aplica la venda elástica para asegurar la hemostasia'}
+            {step === 'BANDAGED' && (
+              <span className="text-emerald-400 font-bold flex items-center justify-center gap-1.5">
+                <span>🛡️</span> Hemostasia 100% Estable • Vendaje Asegurado
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -617,11 +615,11 @@ export const Level4: React.FC = () => {
               </div>
             )}
 
-            {/* ETAPA 3: Vendaje compresivo elástico aplicado y asegurado (Clic también lleva a victoria) */}
+            {/* ETAPA 3: Vendaje compresivo elástico aplicado y asegurado (Clic también abre el overlay) */}
             {step === 'BANDAGED' && (
               <motion.button
                 type="button"
-                onClick={handleFinishMission}
+                onClick={() => setIsLevelComplete(true)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 title="Misión completada - Clic para ver Certificado"
@@ -647,6 +645,19 @@ export const Level4: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal / Overlay de Misión Cumplida (Fase 4 - Final) */}
+      <LevelCompleteOverlay
+        isOpen={isLevelComplete}
+        phaseBadge="Fase 4: Socorrer (Hemostasia y Soporte)"
+        icon="🏆"
+        title="¡Misión de Rescate Cumplida!"
+        subtitle="Hemorragia arterial controlada, coágulo protegido y signos estables."
+        learningPill="Superponer apósitos limpios sin retirar la primera gasa saturada preserva el coágulo inicial de plaquetas y fibrina, deteniendo la pérdida sanguínea sin reactivar el sangrado."
+        scoreBonus="+250 Puntos • 100% Hemostasia"
+        primaryButtonText="🎓 Ver Certificado Oficial ➔"
+        onPrimaryAction={handleFinishMission}
+      />
     </div>
   );
 };

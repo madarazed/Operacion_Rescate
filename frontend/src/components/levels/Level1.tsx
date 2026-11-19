@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../../store/gameStore';
 import streetBg from '../../assets/backgrounds/level1-street-dog.jpg';
 import { playDialTone, playErrorBuzzer, playSuccessDrop } from '../../utils/soundEffects';
+import { LevelCompleteOverlay } from '../ui/LevelCompleteOverlay';
 
 type Phase = 'PROTEGER' | 'ALERTAR';
 
@@ -38,6 +39,7 @@ export const Level1: React.FC = () => {
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [isShaking, setIsShaking] = useState<boolean>(false);
   const [isCallingSuccess, setIsCallingSuccess] = useState<boolean>(false);
+  const [isLevelComplete, setIsLevelComplete] = useState<boolean>(false);
 
   const triggerVibration = (pattern: number | number[] = 40) => {
     try {
@@ -95,8 +97,8 @@ export const Level1: React.FC = () => {
       setPhoneError(null);
       setIsCallingSuccess(true);
       setTimeout(() => {
-        nextLevel();
-      }, 700);
+        setIsLevelComplete(true);
+      }, 600);
     } else {
       triggerVibration([70, 40, 70]);
       playErrorBuzzer();
@@ -345,6 +347,19 @@ export const Level1: React.FC = () => {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Modal / Overlay de Misión Cumplida (Fase 1) */}
+      <LevelCompleteOverlay
+        isOpen={isLevelComplete}
+        phaseBadge="Fase 1: Proteger y Alertar"
+        icon="🚨"
+        title="¡Fase 1 Completada con Éxito!"
+        subtitle="Escena protegida y red de emergencias veterinarias activada."
+        learningPill="Evaluar el entorno previene mordeduras defensivas por dolor y atropellos secundarios. Marcar el 911 a tiempo activa el soporte vital avanzado para el traslado del paciente."
+        scoreBonus="+100 Puntos • +15s Bonificación"
+        primaryButtonText="Continuar a Triage Clínico (Nivel 2) ➔"
+        onPrimaryAction={nextLevel}
+      />
     </div>
   );
 };

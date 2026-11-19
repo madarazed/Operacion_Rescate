@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../../store/gameStore';
 import { playHeartbeat, playSuccessDrop, playErrorBuzzer } from '../../utils/soundEffects';
+import { LevelCompleteOverlay } from '../ui/LevelCompleteOverlay';
 
 import triageBg from '../../assets/backgrounds/level2-triage-room.jpg';
 import examineDogImg from '../../assets/characters/level3-examine-dog.png';
@@ -79,6 +80,7 @@ export const Level3: React.FC = () => {
   const [activeScannerKey, setActiveScannerKey] = useState<InspectionKey | null>(null);
   const [sequenceError, setSequenceError] = useState<string | null>(null);
   const [shakeKey, setShakeKey] = useState<InspectionKey | null>(null);
+  const [isLevelComplete, setIsLevelComplete] = useState<boolean>(false);
 
   const triggerVibration = (pattern: number | number[] = 40) => {
     try {
@@ -142,6 +144,10 @@ export const Level3: React.FC = () => {
           playSuccessDrop();
           addTime(15);
         }, 400);
+
+        setTimeout(() => {
+          setIsLevelComplete(true);
+        }, 600);
       }
     }
   };
@@ -300,27 +306,15 @@ export const Level3: React.FC = () => {
           </div>
         </div>
 
-        {/* Botón de desbloqueo al completar los 3 checks */}
-        <div>
-          <button
-            type="button"
-            disabled={!allCompleted}
-            onClick={() => {
-              if (!allCompleted) return;
-              nextLevel();
-            }}
-            className={`w-full py-3 px-4 rounded-xl font-black text-xs sm:text-sm transition duration-200 shadow-xl flex items-center justify-center space-x-2 ${
-              allCompleted
-                ? 'bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-white ring-2 ring-emerald-300 shadow-[0_0_25px_rgba(16,185,129,0.7)] animate-pulse cursor-pointer border border-emerald-300/50'
-                : 'bg-slate-950/80 text-slate-500 cursor-not-allowed border border-slate-800'
-            }`}
-          >
-            <span>
-              {allCompleted
-                ? '✓ Continuar a Hemostasia (Nivel 4) ➔'
-                : `Completa el Protocolo ABC (${completedCount} de 3)`}
+        {/* Estado del Protocolo ABC */}
+        <div className="w-full py-2 px-3 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-400 text-xs text-center font-medium">
+          {allCompleted ? (
+            <span className="text-emerald-400 font-bold flex items-center justify-center gap-1.5">
+              <span>✓</span> Protocolo ABC completado (3 de 3)
             </span>
-          </button>
+          ) : (
+            <span>Inspección clínica en curso ({completedCount} de 3 completados)</span>
+          )}
         </div>
       </div>
 
@@ -396,6 +390,19 @@ export const Level3: React.FC = () => {
           })}
         </div>
       </div>
+
+      {/* Modal / Overlay de Misión Cumplida (Fase 3) */}
+      <LevelCompleteOverlay
+        isOpen={isLevelComplete}
+        phaseBadge="Fase 3: Socorrer (Evaluación ABCDE)"
+        icon="🩺"
+        title="¡Evaluación ABCDE Completada!"
+        subtitle="Vía aérea, ventilación y pulso femoral verificados clínicamente."
+        learningPill="La secuencia A (Vía aérea), B (Ventilación) y C (Circulación) garantiza que el paciente reciba oxígeno a nivel cerebral y miocárdico antes de atender otras lesiones secundarias."
+        scoreBonus="+150 Puntos • +15s Bonificación"
+        primaryButtonText="Continuar a Hemostasia (Nivel 4) ➔"
+        onPrimaryAction={nextLevel}
+      />
     </div>
   );
 };

@@ -13,6 +13,7 @@ import type { DragStartEvent, DragEndEvent } from '@dnd-kit/core';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../../store/gameStore';
 import { playSuccessDrop, playErrorBuzzer } from '../../utils/soundEffects';
+import { LevelCompleteOverlay } from '../ui/LevelCompleteOverlay';
 
 import triageBg from '../../assets/backgrounds/level2-triage-room.jpg';
 import patientRedImg from '../../assets/characters/level2-patient-red.png';
@@ -536,56 +537,18 @@ export const Level2: React.FC = () => {
         {/* Capa de oscurecimiento suave */}
         <div className="absolute inset-0 bg-slate-950/60 pointer-events-none" />
 
-        {/* Modal de Transición Victoriosa al Completar 3/3 */}
-        <AnimatePresence>
-          {isCompleted && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4"
-            >
-              <motion.div
-                initial={{ scale: 0.85, opacity: 0, y: 20 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                transition={{ type: 'spring', damping: 20 }}
-                className="bg-slate-900 border-2 border-emerald-500/60 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center space-y-4 shadow-2xl ring-4 ring-emerald-500/20"
-              >
-                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-3xl sm:text-4xl border-2 border-emerald-400/50 shadow-lg shadow-emerald-500/30 animate-bounce">
-                  🌟
-                </div>
-                <div>
-                  <span className="inline-block px-3 py-1 bg-emerald-500/20 border border-emerald-500/40 rounded-full text-emerald-300 text-xs font-bold uppercase tracking-wider mb-1">
-                    ¡Triage 3/3 Completado!
-                  </span>
-                  <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                    ¡Triage Superado con Éxito!
-                  </h2>
-                </div>
-                <p className="text-slate-200 text-xs sm:text-sm leading-relaxed">
-                  Has clasificado correctamente a los 3 pacientes caninos y felinos según la prioridad vital del protocolo START. Salvaste minutos vitales para su atención especializada.
-                </p>
-                <div className="bg-slate-950/80 rounded-xl p-2.5 border border-slate-800 text-emerald-300 text-xs font-semibold flex items-center justify-center space-x-2">
-                  <span>+300 Puntos Totales</span>
-                  <span>•</span>
-                  <span>Evaluación Primaria Desbloqueada</span>
-                </div>
-                <button
-                  type="button"
-                  disabled={Object.keys(assignedPatients).length !== PATIENTS.length}
-                  onClick={() => {
-                    if (Object.keys(assignedPatients).length === PATIENTS.length) {
-                      nextLevel();
-                    }
-                  }}
-                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-white font-extrabold py-3.5 px-6 rounded-xl transition duration-150 shadow-lg shadow-emerald-500/30 cursor-pointer text-sm sm:text-base border border-emerald-400/40 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Continuar a Fase 3: Evaluación ABCDE →
-                </button>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Modal / Overlay de Misión Cumplida (Fase 2) */}
+        <LevelCompleteOverlay
+          isOpen={isCompleted}
+          phaseBadge="Fase 2: Socorrer (Triage START)"
+          icon="🌟"
+          title="¡Triage 3/3 Superado con Éxito!"
+          subtitle="Los 3 pacientes han sido clasificados según prioridad vital clínica."
+          learningPill="Priorizar en segundos salva vidas: la atención inmediata al paciente crítico (shock/hemorragia) detiene el colapso, mientras que clasificar amarillo y verde optimiza los recursos de la clínica."
+          scoreBonus="+300 Puntos • +15s Bonificación"
+          primaryButtonText="Continuar a Evaluación ABCDE (Nivel 3) ➔"
+          onPrimaryAction={nextLevel}
+        />
 
         {/* Bahías de Triage (Parte Superior Fija y Ampliada con Etiquetas Cortas) */}
         <div className="relative z-20 w-full max-w-4xl mx-auto space-y-2">
