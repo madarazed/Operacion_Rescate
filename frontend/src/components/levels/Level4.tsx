@@ -13,14 +13,24 @@ type ClinicalStep = 'INITIAL' | 'COMPRESSING' | 'SATURATED' | 'SECOND_GAUZE' | '
 
 export const Level4: React.FC = () => {
   const addScore = useGameStore((state) => state.actions.addScore);
+  const addTime = useGameStore((state) => state.actions.addTime);
   const deductTime = useGameStore((state) => state.actions.deductTime);
   const nextLevel = useGameStore((state) => state.actions.nextLevel);
 
   const [step, setStep] = useState<ClinicalStep>('INITIAL');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const triggerVibration = (pattern: number | number[] = 40) => {
+    try {
+      navigator?.vibrate?.(pattern);
+    } catch {
+      // Ignore vibration error on unsupported platforms
+    }
+  };
+
   const handleApplyFirstGauze = () => {
     if (step !== 'INITIAL') return;
+    triggerVibration(40);
     setErrorMessage(null);
     setStep('COMPRESSING');
     addScore(50);
@@ -31,22 +41,29 @@ export const Level4: React.FC = () => {
   };
 
   const handleOptionRetirarGasa = () => {
+    triggerVibration([60, 40, 60]);
     playErrorBuzzer();
     deductTime(10);
-    setErrorMessage('¡Error! Retirar la gasa rompe el coágulo primario y reactiva el sangrado profuso.');
+    setErrorMessage(
+      '¡Acción contraindicada! Retirar la gasa empapada desgarra el coágulo plaquetario primario y reactiva la hemorragia profusa. Corrige el procedimiento: mantén la primera gasa y superpón una segunda gasa limpia encima.'
+    );
   };
 
   const handleOptionSuperponerGasa = () => {
+    triggerVibration(40);
     playSuccessDrop();
     setErrorMessage(null);
     addScore(100);
+    addTime(15);
     setStep('SECOND_GAUZE');
   };
 
   const handleApplyBandage = () => {
     if (step !== 'SECOND_GAUZE') return;
+    triggerVibration(50);
     playSuccessDrop();
     addScore(100);
+    addTime(15);
     setStep('BANDAGED');
   };
 
@@ -198,15 +215,26 @@ export const Level4: React.FC = () => {
 
         {/* Botón de Siguiente Nivel / Conclusión */}
         <div>
-          {step === 'BANDAGED' && (
+          {step === 'BANDAGED' ? (
             <button
               type="button"
-              onClick={() => nextLevel()}
-              className="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold py-3 px-4 rounded-xl transition shadow-xl text-sm flex items-center justify-center space-x-2 animate-pulse"
+              disabled={step !== 'BANDAGED'}
+              onClick={() => {
+                if (step !== 'BANDAGED') return;
+                nextLevel();
+              }}
+              className="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold py-3 px-4 rounded-xl transition shadow-xl text-sm flex items-center justify-center space-x-2 animate-pulse cursor-pointer border border-emerald-400/50"
             >
               <span>Finalizar Misión de Rescate</span>
               <span>➔</span>
             </button>
+          ) : (
+            <div className="w-full py-2.5 px-3 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-400 text-xs text-center font-medium">
+              {step === 'INITIAL' && 'Paso 1: Aplica la gasa limpia en la herida'}
+              {step === 'COMPRESSING' && 'Paso 2: Ejerciendo compresión directa...'}
+              {step === 'SATURATED' && 'Paso 3: Decide el procedimiento ante la gasa saturada'}
+              {step === 'SECOND_GAUZE' && 'Paso 4: Aplica el vendaje compresivo'}
+            </div>
           )}
         </div>
       </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useGameStore } from '../../store/gameStore';
-import { playHeartbeat } from '../../utils/soundEffects';
+import { playHeartbeat, playSuccessDrop } from '../../utils/soundEffects';
 
 import triageBg from '../../assets/backgrounds/level2-triage-room.jpg';
 import examineDogImg from '../../assets/characters/level3-examine-dog.png';
@@ -49,6 +49,7 @@ const INSPECTIONS: InspectionConfig[] = [
 
 export const Level3: React.FC = () => {
   const addScore = useGameStore((state) => state.actions.addScore);
+  const addTime = useGameStore((state) => state.actions.addTime);
   const nextLevel = useGameStore((state) => state.actions.nextLevel);
 
   const [checks, setChecks] = useState<Record<InspectionKey, boolean>>({
@@ -65,13 +66,21 @@ export const Level3: React.FC = () => {
 
     if (!checks[inspection.key]) {
       addScore(50);
-      setChecks((prev) => ({
-        ...prev,
+      const nextChecks = {
+        ...checks,
         [inspection.key]: true,
-      }));
+      };
+      setChecks(nextChecks);
+
+      // Si con esta inspección se completan todas las 3 (ABC)
+      if (nextChecks.airway && nextChecks.breathing && nextChecks.circulation) {
+        playSuccessDrop();
+        addTime(15);
+      }
     }
   };
 
+  const completedCount = Object.values(checks).filter(Boolean).length;
   const allCompleted = checks.airway && checks.breathing && checks.circulation;
 
   return (
@@ -160,14 +169,21 @@ export const Level3: React.FC = () => {
           <button
             type="button"
             disabled={!allCompleted}
-            onClick={() => nextLevel()}
+            onClick={() => {
+              if (!allCompleted) return;
+              nextLevel();
+            }}
             className={`w-full py-3 px-4 rounded-xl font-bold text-sm transition duration-200 shadow-lg flex items-center justify-center space-x-2 ${
               allCompleted
                 ? 'bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white ring-2 ring-emerald-400 animate-pulse cursor-pointer'
                 : 'bg-slate-800/80 text-slate-500 cursor-not-allowed border border-slate-700/50'
             }`}
           >
-            <span>{allCompleted ? '✓ Continuar al Tratamiento' : 'Completa las 3 Inspecciones (ABC)'}</span>
+            <span>
+              {allCompleted
+                ? '✓ Continuar al Tratamiento de Hemorragia'
+                : `Completa las 3 Inspecciones (${completedCount} de 3)`}
+            </span>
           </button>
         </div>
       </div>

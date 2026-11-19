@@ -432,8 +432,13 @@ export const Level2: React.FC = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => nextLevel()}
-                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-white font-extrabold py-3.5 px-6 rounded-xl transition duration-150 shadow-lg shadow-emerald-500/30 cursor-pointer text-sm sm:text-base border border-emerald-400/40"
+                  disabled={Object.keys(assignedPatients).length !== PATIENTS.length}
+                  onClick={() => {
+                    if (Object.keys(assignedPatients).length === PATIENTS.length) {
+                      nextLevel();
+                    }
+                  }}
+                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-white font-extrabold py-3.5 px-6 rounded-xl transition duration-150 shadow-lg shadow-emerald-500/30 cursor-pointer text-sm sm:text-base border border-emerald-400/40 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Continuar a Fase 3: Evaluación ABCDE →
                 </button>

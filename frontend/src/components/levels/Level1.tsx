@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../../store/gameStore';
 import streetBg from '../../assets/backgrounds/level1-street-dog.jpg';
-import { playDialTone } from '../../utils/soundEffects';
+import { playDialTone, playErrorBuzzer, playSuccessDrop } from '../../utils/soundEffects';
 
 type Phase = 'PROTEGER' | 'ALERTAR';
 
@@ -27,29 +27,39 @@ const DIAL_KEYS: DialKey[] = [
 ];
 
 export const Level1: React.FC = () => {
-  const triggerGameOver = useGameStore((state) => state.actions.triggerGameOver);
   const addScore = useGameStore((state) => state.actions.addScore);
   const addTime = useGameStore((state) => state.actions.addTime);
+  const deductTime = useGameStore((state) => state.actions.deductTime);
   const nextLevel = useGameStore((state) => state.actions.nextLevel);
 
   const [phase, setPhase] = useState<Phase>('PROTEGER');
   const [dialedNumber, setDialedNumber] = useState<string>('');
+  const [protegerError, setProtegerError] = useState<string | null>(null);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [isShaking, setIsShaking] = useState<boolean>(false);
+  const [isCallingSuccess, setIsCallingSuccess] = useState<boolean>(false);
 
-  const triggerVibration = (ms = 40) => {
+  const triggerVibration = (pattern: number | number[] = 40) => {
     try {
-      navigator?.vibrate?.(ms);
+      navigator?.vibrate?.(pattern);
     } catch {
       // Ignore if vibration is not supported
     }
   };
 
   const handleAlzarInmediato = () => {
-    triggerVibration(60);
-    triggerGameOver('El animal te mordió por dolor y estrés al intentar alzarlo sin protección.');
+    triggerVibration([60, 40, 60]);
+    playErrorBuzzer();
+    deductTime(5);
+    setProtegerError(
+      '¡Peligro! El animal te mordió por dolor y reflejo defensivo al intentar alzarlo sin protección ni evaluar el entorno. Primero debes evaluar la vía y usar barreras.'
+    );
   };
 
   const handleEvaluarEntorno = () => {
     triggerVibration(40);
+    playSuccessDrop();
+    setProtegerError(null);
     addScore(100);
     addTime(15);
     setPhase('ALERTAR');
@@ -58,6 +68,7 @@ export const Level1: React.FC = () => {
   const handleKeyPress = (num: string) => {
     triggerVibration(30);
     playDialTone();
+    setPhoneError(null);
     if (dialedNumber.length < 6) {
       setDialedNumber((prev) => prev + num);
     }
@@ -65,18 +76,35 @@ export const Level1: React.FC = () => {
 
   const handleClearDial = () => {
     triggerVibration(20);
+    setPhoneError(null);
     setDialedNumber((prev) => prev.slice(0, -1));
   };
 
   const handleResetDial = () => {
     triggerVibration(20);
-    setDialedNumber('');
+    setPhoneError(null);
+    setDialedNumber('911');
   };
 
   const handleFinalizarProtocolo = () => {
-    triggerVibration(50);
-    addTime(15);
-    nextLevel();
+    const trimmed = dialedNumber.trim();
+    if (trimmed === '911' || trimmed === '123') {
+      triggerVibration(50);
+      playSuccessDrop();
+      addTime(15);
+      setPhoneError(null);
+      setIsCallingSuccess(true);
+      setTimeout(() => {
+        nextLevel();
+      }, 700);
+    } else {
+      triggerVibration([70, 40, 70]);
+      playErrorBuzzer();
+      deductTime(3);
+      setPhoneError('Número incorrecto: marca 911 (o 123) para activar la red de emergencias veterinarias.');
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 600);
+    }
   };
 
   return (
@@ -140,6 +168,18 @@ export const Level1: React.FC = () => {
                   </p>
                 </div>
 
+                {/* Banner de error pedagógico en Proteger */}
+                {protegerError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-red-950/90 border border-red-500/80 text-red-200 text-xs p-2.5 rounded-xl shadow-lg flex items-start space-x-2"
+                  >
+                    <span className="text-base flex-shrink-0">⚠️</span>
+                    <p className="leading-snug">{protegerError}</p>
+                  </motion.div>
+                )}
+
                 {/* Botones de acción estilo control arcade */}
                 <div className="space-y-2.5 pt-1">
                   <button
@@ -200,15 +240,49 @@ export const Level1: React.FC = () => {
                   <span className="text-slate-400 text-xs font-mono font-semibold">Paso 2 de 2</span>
                 </div>
 
-                {/* Smartphone Dialer Container */}
-                <div className="bg-slate-950/95 rounded-2xl p-3 border border-slate-800 shadow-2xl space-y-2">
+                {/* Banner de error si el número es incorrecto */}
+                {phoneError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-amber-950/95 border border-amber-500 text-amber-200 text-xs p-2.5 rounded-xl shadow-lg flex items-start space-x-2"
+                  >
+                    <span className="text-base flex-shrink-0">⚠️</span>
+                    <p className="leading-snug">{phoneError}</p>
+                  </motion.div>
+                )}
+
+                {/* Banner de conexión exitosa */}
+                {isCallingSuccess && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="bg-emerald-950/95 border border-emerald-400 text-emerald-200 text-xs p-2.5 rounded-xl shadow-lg flex items-center justify-center space-x-2 animate-pulse text-center"
+                  >
+                    <span className="text-base">📞</span>
+                    <span className="font-bold">¡Conectando con Central de Emergencias 911...!</span>
+                  </motion.div>
+                )}
+
+                {/* Smartphone Dialer Container con efecto Shake en error */}
+                <motion.div
+                  animate={isShaking ? { x: [-8, 8, -6, 6, -3, 3, 0] } : {}}
+                  transition={{ duration: 0.5 }}
+                  className="bg-slate-950/95 rounded-2xl p-3 border border-slate-800 shadow-2xl space-y-2"
+                >
                   {/* Pantalla del teléfono */}
                   <div className="bg-slate-900/90 rounded-xl p-2 text-center border border-slate-700/80 shadow-inner flex flex-col items-center justify-center">
                     <span className="text-[10px] text-slate-400 tracking-wider uppercase font-semibold">
                       Llamada de Emergencia
                     </span>
                     <span className="text-2xl font-mono tracking-widest text-emerald-400 font-extrabold h-8 flex items-center justify-center">
-                      {dialedNumber || '911'}
+                      {dialedNumber ? (
+                        dialedNumber
+                      ) : (
+                        <span className="text-slate-600 font-sans text-xs tracking-normal font-medium">
+                          Ingresa el número (ej. 911)
+                        </span>
+                      )}
                     </span>
                   </div>
 
@@ -233,7 +307,7 @@ export const Level1: React.FC = () => {
                     ))}
                   </div>
 
-                  {/* Barra de acción: Borrar, Botón Llamar con pulso, y Reset */}
+                  {/* Barra de acción: Reset a 911, Botón Llamar con pulso, y Borrar */}
                   <div className="flex items-center justify-center space-x-5 pt-1">
                     <button
                       type="button"
@@ -265,17 +339,7 @@ export const Level1: React.FC = () => {
                       ⌫
                     </button>
                   </div>
-                </div>
-
-                {/* Botón de acceso rápido directo */}
-                <button
-                  type="button"
-                  onClick={handleFinalizarProtocolo}
-                  className="w-full min-h-[46px] bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 active:scale-95 text-white font-extrabold py-2.5 px-4 rounded-xl transition duration-150 text-center shadow-xl border border-blue-400/40 flex items-center justify-center space-x-2 text-sm cursor-pointer"
-                >
-                  <span className="text-lg">📞</span>
-                  <span>Conectar Central 911 (Avanzar)</span>
-                </button>
+                </motion.div>
               </motion.div>
             )}
           </AnimatePresence>
