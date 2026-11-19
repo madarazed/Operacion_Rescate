@@ -5,19 +5,25 @@ import { setSoundMuted } from '../utils/soundEffects';
 export const useGameStore = create<GameState>((set) => ({
   currentLevel: 0,
   score: 0,
-  globalTimer: 60,
+  globalTimer: 120,
+  isRelaxedMode: false,
+  isPracticeMode: false,
+  lastTimeBonus: null,
   playerData: { id: null, name: '' },
   isGameOver: false,
   gameOverReason: '',
   isMuted: false,
   actions: {
     startGame: () =>
-      set(() => ({
+      set((state) => ({
         currentLevel: 1,
         score: 0,
-        globalTimer: 60,
+        globalTimer: 120,
+        isPracticeMode: false,
         isGameOver: false,
         gameOverReason: '',
+        lastTimeBonus: null,
+        isRelaxedMode: state.isRelaxedMode,
       })),
     nextLevel: () =>
       set((state) => ({
@@ -27,19 +33,31 @@ export const useGameStore = create<GameState>((set) => ({
       set((state) => ({
         score: state.score + points,
       })),
-    deductTime: (seconds: number) =>
+    addTime: (seconds: number) =>
       set((state) => {
         if (state.isGameOver) return {};
+        return {
+          globalTimer: state.globalTimer + seconds,
+          isPracticeMode: false,
+          lastTimeBonus: { amount: seconds, id: Date.now() },
+        };
+      }),
+    deductTime: (seconds: number) =>
+      set((state) => {
+        if (state.isGameOver || state.isRelaxedMode || state.globalTimer <= 0) return {};
         const newTimer = Math.max(0, state.globalTimer - seconds);
         if (newTimer === 0) {
           return {
             globalTimer: 0,
-            isGameOver: true,
-            gameOverReason: '¡Se te ha agotado el tiempo!',
+            isPracticeMode: true,
           };
         }
         return { globalTimer: newTimer };
       }),
+    setRelaxedMode: (enabled: boolean) =>
+      set(() => ({
+        isRelaxedMode: enabled,
+      })),
     triggerGameOver: (reason: string) =>
       set(() => ({
         isGameOver: true,
@@ -52,13 +70,16 @@ export const useGameStore = create<GameState>((set) => ({
         return { isMuted: nextMuted };
       }),
     resetGame: () =>
-      set(() => ({
+      set((state) => ({
         currentLevel: 0,
         score: 0,
-        globalTimer: 60,
+        globalTimer: 120,
+        isPracticeMode: false,
         isGameOver: false,
         gameOverReason: '',
+        lastTimeBonus: null,
         playerData: { id: null, name: '' },
+        isRelaxedMode: state.isRelaxedMode,
       })),
   },
 }));

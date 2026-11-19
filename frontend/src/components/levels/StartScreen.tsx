@@ -4,6 +4,8 @@ import { useGameStore } from '../../store/gameStore';
 
 export const StartScreen: React.FC = () => {
   const startGame = useGameStore((state) => state.actions.startGame);
+  const isRelaxedMode = useGameStore((state) => state.isRelaxedMode);
+  const setRelaxedMode = useGameStore((state) => state.actions.setRelaxedMode);
 
   const handleStart = () => {
     try {
@@ -73,7 +75,7 @@ export const StartScreen: React.FC = () => {
           className="w-full max-w-lg mx-auto md:max-w-none bg-slate-900/80 backdrop-blur-md rounded-2xl sm:rounded-3xl border border-white/20 p-3 sm:p-4 shadow-2xl md:bg-transparent md:backdrop-blur-none md:border-0 md:p-0 md:shadow-none flex flex-col gap-3 md:gap-6"
         >
           {/* Botón Principal de Acción interactivo con pulso continuo y resplandor esmeralda */}
-          <div className="w-full flex justify-center md:justify-start">
+          <div className="w-full flex flex-col items-center md:items-start gap-2.5">
             <button
               type="button"
               onClick={handleStart}
@@ -83,6 +85,43 @@ export const StartScreen: React.FC = () => {
               <span className="text-xl sm:text-2xl lg:text-3xl filter drop-shadow">🐾</span>
               <span className="text-lg sm:text-xl lg:text-2xl filter drop-shadow">▶</span>
             </button>
+
+            {/* Toggle de Modo: Con Tiempo / Sin Tiempo (Relajado) */}
+            <div className="flex flex-col items-center md:items-start gap-1">
+              <div className="inline-flex p-1 rounded-full bg-slate-950/80 border border-white/20 shadow-md backdrop-blur-md">
+                <button
+                  type="button"
+                  onClick={() => setRelaxedMode(false)}
+                  className={`px-3 sm:px-4 py-1 rounded-full text-xs sm:text-sm font-bold transition-all flex items-center space-x-1.5 cursor-pointer ${
+                    !isRelaxedMode
+                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md'
+                      : 'text-slate-300 hover:text-white'
+                  }`}
+                  title="Partida con 120s iniciales y bonificación de tiempo"
+                >
+                  <span>⏱️</span>
+                  <span>Con Tiempo</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRelaxedMode(true)}
+                  className={`px-3 sm:px-4 py-1 rounded-full text-xs sm:text-sm font-bold transition-all flex items-center space-x-1.5 cursor-pointer ${
+                    isRelaxedMode
+                      ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 shadow-md'
+                      : 'text-slate-300 hover:text-white'
+                  }`}
+                  title="Partida relajada sin presión de reloj"
+                >
+                  <span>🌿</span>
+                  <span>Sin Tiempo (Relajado)</span>
+                </button>
+              </div>
+              <p className="text-[10px] sm:text-[11px] text-slate-200/90 font-medium px-1 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                {isRelaxedMode
+                  ? '🌿 Modo Relajado activo: lee y aprende a tu propio ritmo sin reloj.'
+                  : '⏱️ Modo Con Tiempo: 120s + bonos de 15s por cada acierto clínico.'}
+              </p>
+            </div>
           </div>
 
           {/* Tarjetas / Burbujas interactivas del Protocolo PASR */}

@@ -29,6 +29,7 @@ const DIAL_KEYS: DialKey[] = [
 export const Level1: React.FC = () => {
   const triggerGameOver = useGameStore((state) => state.actions.triggerGameOver);
   const addScore = useGameStore((state) => state.actions.addScore);
+  const addTime = useGameStore((state) => state.actions.addTime);
   const nextLevel = useGameStore((state) => state.actions.nextLevel);
 
   const [phase, setPhase] = useState<Phase>('PROTEGER');
@@ -50,6 +51,7 @@ export const Level1: React.FC = () => {
   const handleEvaluarEntorno = () => {
     triggerVibration(40);
     addScore(100);
+    addTime(15);
     setPhase('ALERTAR');
   };
 
@@ -73,6 +75,7 @@ export const Level1: React.FC = () => {
 
   const handleFinalizarProtocolo = () => {
     triggerVibration(50);
+    addTime(15);
     nextLevel();
   };
 
@@ -164,7 +167,10 @@ export const Level1: React.FC = () => {
                     <div className="flex items-center space-x-3">
                       <span className="text-2xl flex-shrink-0">🛡️</span>
                       <div>
-                        <div className="font-extrabold tracking-wide text-white">Evaluar entorno y usar barreras</div>
+                        <div className="flex items-center space-x-2">
+                          <span className="font-extrabold tracking-wide text-white">Evaluar entorno y usar barreras</span>
+                          <span className="bg-emerald-400 text-slate-950 text-[10px] font-black px-1.5 py-0.2 rounded-full shadow">+15s ⏱️</span>
+                        </div>
                         <div className="text-[11px] text-emerald-200 font-normal">Seguridad vial y precaución</div>
                       </div>
                     </div>

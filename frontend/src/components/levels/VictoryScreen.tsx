@@ -17,6 +17,8 @@ const LOCAL_STORAGE_KEY = 'pasr_rescue_leaderboard';
 export const VictoryScreen: React.FC = () => {
   const score = useGameStore((state) => state.score);
   const globalTimer = useGameStore((state) => state.globalTimer);
+  const isRelaxedMode = useGameStore((state) => state.isRelaxedMode);
+  const isPracticeMode = useGameStore((state) => state.isPracticeMode);
   const resetGame = useGameStore((state) => state.actions.resetGame);
 
   const [playerName, setPlayerName] = useState<string>('');
@@ -24,6 +26,11 @@ export const VictoryScreen: React.FC = () => {
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [hasSaved, setHasSaved] = useState<boolean>(false);
   const [feedbackNotice, setFeedbackNotice] = useState<string | null>(null);
+
+  // Bono de velocidad: solo si jugó con tiempo, no agotó el reloj y no está en modo relajado
+  const hasSpeedBonus = !isRelaxedMode && !isPracticeMode && globalTimer > 0;
+  const speedBonus = hasSpeedBonus ? globalTimer * 2 : 0;
+  const finalScore = score + speedBonus;
 
   // Cargar tabla inicial, reproducir fanfarria y disparar confeti festivo al montar
   useEffect(() => {
@@ -94,8 +101,8 @@ export const VictoryScreen: React.FC = () => {
 
     const payload = {
       player_name: cleanName,
-      score,
-      time_left: globalTimer,
+      score: finalScore,
+      time_left: hasSpeedBonus ? globalTimer : 0,
     };
 
     let savedViaApi = false;
@@ -140,7 +147,7 @@ export const VictoryScreen: React.FC = () => {
   const handleDownloadCertificate = () => {
     downloadRescueCertificate(
       playerName.trim() || 'Rescatista Canino',
-      score,
+      finalScore,
       new Date().toLocaleDateString('es-ES', {
         year: 'numeric',
         month: 'long',
@@ -209,7 +216,16 @@ export const VictoryScreen: React.FC = () => {
               <div className="grid grid-cols-2 gap-2.5 max-w-xs mx-auto">
                 <div className="bg-slate-900/60 p-2 rounded-xl border border-slate-800 text-center">
                   <span className="text-[10px] text-slate-400 block font-medium">Puntaje</span>
-                  <span className="text-base sm:text-lg font-black text-emerald-400">{score} pts</span>
+                  <span className="text-base sm:text-lg font-black text-emerald-400">{finalScore} pts</span>
+                  {hasSpeedBonus ? (
+                    <span className="text-[9px] text-emerald-300 block font-medium">
+                      (+{speedBonus} bono velocidad)
+                    </span>
+                  ) : (
+                    <span className="text-[9px] text-amber-300/80 block font-medium">
+                      {isRelaxedMode ? 'Modo Relajado' : 'Modo Práctica'}
+                    </span>
+                  )}
                 </div>
                 <div className="bg-slate-900/60 p-2 rounded-xl border border-slate-800 text-center">
                   <span className="text-[10px] text-slate-400 block font-medium">Fecha</span>

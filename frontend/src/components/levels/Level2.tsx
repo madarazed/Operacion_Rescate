@@ -276,6 +276,7 @@ const ActivePatientCard: React.FC<ActivePatientCardProps> = ({
 
 export const Level2: React.FC = () => {
   const addScore = useGameStore((state) => state.actions.addScore);
+  const addTime = useGameStore((state) => state.actions.addTime);
   const deductTime = useGameStore((state) => state.actions.deductTime);
   const nextLevel = useGameStore((state) => state.actions.nextLevel);
 
@@ -318,9 +319,10 @@ export const Level2: React.FC = () => {
       triggerVibration(40);
       playSuccessDrop();
       addScore(100);
+      addTime(15);
 
       setFeedbackToast({
-        title: '¡Felicitación Médica!',
+        title: '¡Felicitación Médica! (+15s bonificación)',
         message: patient.feedbackTip,
         type: 'success',
       });

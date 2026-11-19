@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../../store/gameStore';
 import type { GameLayoutProps } from '../../types';
 
@@ -8,24 +9,42 @@ export const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
   const isGameOver = useGameStore((state) => state.isGameOver);
   const currentLevel = useGameStore((state) => state.currentLevel);
   const isMuted = useGameStore((state) => state.isMuted);
+  const isRelaxedMode = useGameStore((state) => state.isRelaxedMode);
+  const isPracticeMode = useGameStore((state) => state.isPracticeMode);
+  const lastTimeBonus = useGameStore((state) => state.lastTimeBonus);
   const deductTime = useGameStore((state) => state.actions.deductTime);
   const toggleSound = useGameStore((state) => state.actions.toggleSound);
 
+  const [showBonus, setShowBonus] = useState(false);
+
   useEffect(() => {
-    // No descontar tiempo en la pantalla de inicio o cuando el juego ha finalizado
-    if (isGameOver || currentLevel === 0) return;
+    if (!lastTimeBonus) return;
+    setShowBonus(true);
+    const timer = setTimeout(() => {
+      setShowBonus(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [lastTimeBonus]);
+
+  useEffect(() => {
+    // No descontar tiempo en la pantalla de inicio, juego terminado, modo relajado o si se agotó el tiempo
+    if (isGameOver || currentLevel === 0 || isRelaxedMode || globalTimer <= 0) return;
 
     const interval = setInterval(() => {
       deductTime(1);
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isGameOver, currentLevel, deductTime]);
+  }, [isGameOver, currentLevel, isRelaxedMode, globalTimer, deductTime]);
+
+  const minutes = Math.floor(globalTimer / 60);
+  const seconds = globalTimer % 60;
+  const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
   const timerColor =
-    globalTimer <= 10
+    globalTimer <= 15
       ? 'text-red-400 font-black animate-pulse'
-      : globalTimer <= 20
+      : globalTimer <= 30
       ? 'text-amber-400 font-bold'
       : 'text-slate-100 font-bold';
 
@@ -67,11 +86,49 @@ export const GameLayout: React.FC<GameLayoutProps> = ({ children }) => {
               </span>
             </div>
 
-            <div className="flex items-center space-x-1">
-              <span className="text-slate-400 text-[11px] sm:text-xs">⏱️</span>
-              <span className={`text-xs sm:text-sm font-mono tracking-wider ${timerColor}`}>
-                {globalTimer}s
-              </span>
+            {/* Temporizador o Modo Práctica / Modo Relajado con Indicador de Bonificación */}
+            <div className="relative flex items-center">
+              {isRelaxedMode ? (
+                <div
+                  className="flex items-center space-x-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[11px] sm:text-xs font-bold px-2.5 py-0.5 rounded-full shadow-sm"
+                  title="Modo sin límite de tiempo"
+                >
+                  <span>🌿</span>
+                  <span>Modo Relajado</span>
+                </div>
+              ) : isPracticeMode || globalTimer === 0 ? (
+                <div
+                  className="flex items-center space-x-1.5 bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] sm:text-xs font-bold px-2.5 py-0.5 rounded-full shadow-sm animate-pulse"
+                  title="Tiempo agotado. Continúa en Modo Práctica sin presión."
+                >
+                  <span>🌱</span>
+                  <span>Modo Práctica</span>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-1">
+                  <span className="text-slate-400 text-[11px] sm:text-xs">⏱️</span>
+                  <span className={`text-xs sm:text-sm font-mono tracking-wider ${timerColor}`}>
+                    {formattedTime}
+                  </span>
+                </div>
+              )}
+
+              {/* Indicador visual flotante de bonificación (+15s) */}
+              <AnimatePresence>
+                {showBonus && lastTimeBonus && (
+                  <motion.div
+                    key={lastTimeBonus.id}
+                    initial={{ opacity: 0, y: 8, scale: 0.7 }}
+                    animate={{ opacity: 1, y: -20, scale: 1.1 }}
+                    exit={{ opacity: 0, y: -30, scale: 0.8 }}
+                    transition={{ duration: 1.2, ease: 'easeOut' }}
+                    className="absolute -top-1 left-1/2 -translate-x-1/2 sm:left-full sm:translate-x-0 sm:ml-2 pointer-events-none z-50 flex items-center space-x-0.5 bg-emerald-500 text-slate-950 border border-emerald-300 text-[10px] sm:text-xs font-black px-2 py-0.5 rounded-full shadow-lg shadow-emerald-500/40 whitespace-nowrap"
+                  >
+                    <span>+{lastTimeBonus.amount}s</span>
+                    <span>⏱️</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
 
